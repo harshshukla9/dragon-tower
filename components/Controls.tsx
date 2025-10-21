@@ -206,7 +206,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
   return (
     <div 
-      className="backdrop-blur-sm rounded-xl p-6 space-y-6"
+      className="backdrop-blur-sm rounded-xl p-4 space-y-4"
       style={{
         backgroundColor: 'rgba(0,0,0,0.3)' // Semi-transparent to show lava background
       }}
@@ -215,7 +215,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
      
 
       {/* Bet Amount */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex justify-between items-center">
           <label className="text-sm font-medium text-gray-300">Bet Amount</label>
           <div className="flex flex-col items-end">

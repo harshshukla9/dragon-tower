@@ -78,7 +78,7 @@ export const GameLayout = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="p-4 sm:p-6">
+          <div className="p-2 sm:p-4">
             <Controls />
           </div>
         </motion.div>

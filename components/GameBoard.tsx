@@ -16,22 +16,38 @@ interface TileProps {
 
 const Tile = ({ tile, row, col, isClickable, onClick, gameMode }: TileProps) => {
   const getTileClasses = () => {
-    const baseClasses = 'w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-lg border-2 transition-all duration-300 flex items-center justify-center text-xl sm:text-2xl md:text-3xl font-bold cursor-pointer relative overflow-hidden';
+    const baseClasses = 'w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-lg transition-all duration-300 flex items-center justify-center text-xl sm:text-2xl md:text-3xl font-bold cursor-pointer relative overflow-hidden';
     
     if (!isClickable) {
-      return `${baseClasses} border-gray-700 text-gray-500 cursor-not-allowed`;
+      return `${baseClasses} text-gray-500 cursor-not-allowed`;
     }
     
     switch (tile) {
       case 'hidden':
-        return `${baseClasses} border-gray-600 hover:border-gray-500 text-gray-300`;
+        return `${baseClasses} text-gray-300`;
       case 'safe':
-        return `${baseClasses} border-green-500 text-white`;
+        return `${baseClasses} text-white`;
       case 'trap':
-        return `${baseClasses} border-red-500 text-white`;
+        return `${baseClasses} text-white`;
       default:
         return baseClasses;
     }
+  };
+
+  const getFrameClasses = () => {
+    return 'w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36'; // Larger to accommodate the frame
+  };
+
+  const getFrameStyle = () => {
+    return {
+      backgroundImage: `url('/all%20assets/general%20stone%20frame%20display.png')`,
+      backgroundSize: 'cover', // Try cover instead of contain
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      zIndex: 1,
+      width: '100%',
+      height: '100%'
+    };
   };
 
   const getTileBackgroundImage = () => {
@@ -64,15 +80,19 @@ const Tile = ({ tile, row, col, isClickable, onClick, gameMode }: TileProps) => 
       case 'safe':
         return (
           <motion.div
-            className="w-full h-full flex items-center justify-center"
+            className="w-full h-full flex items-center justify-center overflow-visible"
             initial={{ scale: 0, rotate: 180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
+            animate={{ scale: 1.5, rotate: 0 }}
+            transition={{ 
+              duration: 0.8, 
+              ease: 'easeOut',
+              scale: { duration: 0.6, ease: 'easeOut' }
+            }}
           >
             <img 
               src="/all%20assets/diamond%20safe%20grid%20mockup.png" 
               alt="Safe tile"
-              className="w-full h-full object-contain"
+              className="w-[300%] h-[300%] object-contain absolute z-10"
             />
           </motion.div>
         );
@@ -100,7 +120,7 @@ const Tile = ({ tile, row, col, isClickable, onClick, gameMode }: TileProps) => 
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundColor: 'rgba(0,0,0,0.3)' // Fallback for visibility
+        backgroundColor: 'rgba(0,0,0,0.3)', // Fallback for visibility
       }}
       onClick={() => isClickable && onClick(row, col)}
       whileHover={isClickable ? { scale: 1.05, y: -2 } : {}}
@@ -312,7 +332,20 @@ export const GameBoard = () => {
 
       {/* Game Grid - Full Width with proper spacing */}
       <div className="flex flex-col items-center justify-center h-full w-full px-2 sm:px-4 pt-16 sm:pt-20 pb-16">
-        <div className="flex flex-col justify-center items-center space-y-1.5 sm:space-y-2 md:space-y-3 w-full">
+        {/* Stone frame border around the entire grid */}
+        <div 
+          className="relative inline-block"
+          style={{
+            backgroundImage: `url('/all%20assets/general%20stone%20frame%20display1-Photoroom.png')`,
+             backgroundSize: '100% 140%',
+             backgroundPosition: 'center',
+             backgroundRepeat: 'no-repeat',
+             padding: '80px 25px 10px 25px', // Top, Right, Bottom, Left padding for custom frame positioning
+             width: 'fit-content',
+             height: 'fit-content'
+          }}
+        >
+           <div className="flex flex-col justify-center items-center space-y-1.5 sm:space-y-2 md:space-y-3 p-4">
           {grid.map((row, rowIndex) => (
             <motion.div
               key={rowIndex}
@@ -342,6 +375,7 @@ export const GameBoard = () => {
               })}
             </motion.div>
           ))}
+          </div>
         </div>
       </div>
 
