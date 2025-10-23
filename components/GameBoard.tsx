@@ -51,11 +51,18 @@ const Tile = ({ tile, row, col, isClickable, onClick, gameMode }: TileProps) => 
   };
 
   const getTileBackgroundImage = () => {
-    const modeSuffix = gameMode === 'easy' ? 'easy%20mode' : gameMode === 'medium' ? 'medium%20mode' : 'Hard%20mode';
+    let backgroundUrl = '';
     
     switch (tile) {
       case 'hidden':
-        return `url(/all%20assets/Active%20play%20grid%20${modeSuffix}.png)`; // The "golden one" that hides gems and skulls
+        if (gameMode === 'easy') {
+          backgroundUrl = `url(/all%20assets/Active%20play%20grid%20easy%20mode.png)`;
+        } else if (gameMode === 'medium') {
+          backgroundUrl = `url(/all%20assets/general%20grid%20medium%20mode.png)`; // Herringbone brick pattern
+        } else {
+          backgroundUrl = `url(/all%20assets/general%20grid%20Hard%20mode.png)`; // Herringbone brick pattern
+        }
+        return backgroundUrl;
       case 'safe':
         return ''; // No background, content will be the gem image
       case 'trap':
@@ -63,6 +70,20 @@ const Tile = ({ tile, row, col, isClickable, onClick, gameMode }: TileProps) => 
       default:
         return '';
     }
+  };
+
+  const getTileBackgroundSize = () => {
+    if (tile === 'hidden' && (gameMode === 'medium' || gameMode === 'hard')) {
+      return '80%'; // Scale pattern for medium and hard mode
+    }
+    return 'cover';
+  };
+
+  const getTileBackgroundRepeat = () => {
+    if (tile === 'hidden' && (gameMode === 'medium' || gameMode === 'hard')) {
+      return 'repeat'; // Repeat pattern to cover entire tile
+    }
+    return 'no-repeat';
   };
 
   const getTileContent = () => {
@@ -117,9 +138,9 @@ const Tile = ({ tile, row, col, isClickable, onClick, gameMode }: TileProps) => 
       className={getTileClasses()}
       style={{
         backgroundImage: getTileBackgroundImage(),
-        backgroundSize: 'cover',
+        backgroundSize: getTileBackgroundSize(),
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        backgroundRepeat: getTileBackgroundRepeat(),
         backgroundColor: 'rgba(0,0,0,0.3)', // Fallback for visibility
       }}
       onClick={() => isClickable && onClick(row, col)}
