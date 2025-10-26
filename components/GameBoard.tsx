@@ -199,15 +199,6 @@ export const GameBoard = () => {
   };
 
   const gridConfig = getGridConfig();
-   const generateCustomGrid = () => {
-    const grid = [];
-    for (let i = 0; i < gridConfig.totalBoxes; i++) {
-      grid.push(((i % 3) + 1).toString());
-    }
-    return grid;
-  };
-  
-  const customGrid = generateCustomGrid();
   ///// Fahad
 
   // Determine which chest to display based on game state
@@ -249,7 +240,7 @@ export const GameBoard = () => {
       return () => clearTimeout(timer);
     }
   }, [multiplier]);
-
+  
   if (!grid.length) {
     return (
       <div className="relative h-full w-full flex items-center justify-center">
@@ -376,18 +367,9 @@ export const GameBoard = () => {
                 // Dispatch event to refresh all balance displays
                 window.dispatchEvent(new CustomEvent('balanceUpdated'));
                 
-                // Set status to cashed_out to show winning chest
+                // Set status to cashed_out to show winning chest popup
                 const { setStatus } = useGameStore.getState();
                 setStatus('cashed_out');
-                
-                // After showing the chest for 2 seconds, reset the game to allow playing again
-                // But don't redirect - stay on the game board
-                setTimeout(() => {
-                  console.log('Resetting game after cashout...');
-                  const { resetGame } = useGameStore.getState();
-                  resetGame();
-                  console.log('Game reset completed, status should be idle');
-                }, 2000);
               } catch (error) {
                 console.error('Failed to cashout:', error);
                 alert(`Failed to cashout: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -414,47 +396,163 @@ export const GameBoard = () => {
           }}
         >
            <div className={`grid ${gridConfig.gridClass} gap-2 w-full p-2 items-center bg-[#4E1C0C]`}>
-          {customGrid.map((row, i) => (
-            <motion.div
-              key={i}
-              className="bg-[#773016] h-[10vh] w-full"
-            >
-              {row}
-            </motion.div>
-          ))}
+          {grid.map((row, rowIdx) => 
+            row.map((tile, colIdx) => {
+              // Calculate the actual row index from bottom to top
+              const targetRow = config.rows - 1 - currentRow;
+              const isCurrentRow = rowIdx === targetRow;
+              const isClickable = status === 'playing' && isCurrentRow;
+              
+              // Get the tile background based on state - all rows use Active play grid (golden)
+              const getTileBackground = () => {
+                if (tile === 'hidden') {
+                  // Use "Active play grid" for all rows to make them golden
+                  if (mode === 'easy') {
+                    return `url('/all%20assets/Active%20play%20grid%20easy%20mode.png')`;
+                  } else if (mode === 'medium') {
+                    return `url('/all%20assets/Active%20play%20grid%20medium%20mode.png')`;
+                  } else {
+                    return `url('/all%20assets/Active%20play%20grid%20Hard%20mode.png')`;
+                  }
+                }
+                return '';
+              };
+
+              const getTileContent = () => {
+                if (tile === 'hidden') {
+                  return '?';
+                } else if (tile === 'safe') {
+                  return (
+                    <motion.img 
+                      src="/all%20assets/diamond%20reward.png" 
+                      alt="Safe"
+                      className="w-full h-full object-contain scale-150"
+                      initial={{ scale: 0, rotate: 180 }}
+                      animate={{ scale: 1.5, rotate: 0 }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  );
+                } else if (tile === 'trap') {
+                  return '💀';
+                }
+                return null;
+              };
+
+              // Get background color based on mode - all rows are golden/bright
+              const getTileBackgroundColor = () => {
+                if (mode === 'easy') {
+                  return '#D4A05A'; // Golden for easy mode
+                } else if (mode === 'medium') {
+                  return '#8B4513'; // Saddle brown for medium
+                } else {
+                  return '#8B4513'; // Saddle brown for hard
+                }
+              };
+              
+              return (
+                <motion.div
+                  key={`${rowIdx}-${colIdx}`}
+                  className={`h-[10vh] w-full rounded-lg flex items-center justify-center text-white text-3xl font-bold ${
+                    isClickable ? 'cursor-pointer hover:brightness-110' : 'cursor-not-allowed'
+                  }`}
+                  style={{
+                    backgroundColor: getTileBackgroundColor(),
+                    backgroundImage: getTileBackground(),
+                    backgroundSize: mode === 'easy' ? 'cover' : '80%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: mode === 'easy' ? 'no-repeat' : 'repeat',
+                  }}
+                  onClick={() => isClickable && clickTile(rowIdx, colIdx)}
+                  whileHover={isClickable ? { scale: 1.05 } : {}}
+                  whileTap={isClickable ? { scale: 0.95 } : {}}
+                >
+                  {getTileContent()}
+                </motion.div>
+              );
+            })
+          )}
           </div>
         </div>
       </div>
 
 
-      {/* Game Status Messages */}
-      {status === 'won' && (
+      {/* Game Status Messages - Winning Popup */}
+      {(status === 'won' || status === 'cashed_out') && (
         <motion.div
-          className="absolute inset-0 flex items-center justify-center z-30"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
-          <div 
-            className="text-center rounded-xl p-4 backdrop-blur-sm relative"
-            style={{
-              backgroundImage: 'url(/all%20assets/Winning%20Chest.png)',
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              minHeight: '300px',
-              minWidth: '250px'
+          <motion.div
+            className="text-center relative flex flex-col items-center"
+            initial={{ scale: 0.5, y: -100 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              duration: 0.6 
             }}
           >
-            <div className="text-sm font-bold text-green-400 mb-1">Victory!</div>
-            <div className="text-xs text-gray-300 mb-2">Top of tower!</div>
-            <div className="text-sm font-bold text-white mb-2">
-              {multiplier.toFixed(2)}x
+            {/* Victory Text - Above chest - Outside of chest container */}
+            <motion.div
+              className="mb-4 px-4"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              <div className="text-2xl sm:text-3xl font-bold text-yellow-400 whitespace-nowrap" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+                {status === 'won' ? '🏆 VICTORY! 🏆' : '💰 CASHED OUT! 💰'}
+              </div>
+            </motion.div>
+
+            {/* Chest Image Container */}
+            <div 
+              className="relative flex flex-col items-center justify-center"
+              style={{
+                backgroundImage: 'url(/all%20assets/Winning%20Chest.png)',
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                width: '350px',
+                height: '350px'
+              }}
+            >
+              {/* Multiplier and Payout - Inside chest area, perfectly centered */}
+              <motion.div
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-6 py-3 left-1/2 transform -translate-x-1/2 border-2 border-yellow-400 shadow-xl text-center">
+                  <div className="text-2xl font-bold text-yellow-400">
+                    {multiplier.toFixed(2)}x
+                  </div>
+                  <div className="text-xl font-bold text-white">
+                    ${(betAmount * multiplier).toFixed(2)}
+                  </div>
+                </div>
+              </motion.div>
             </div>
-            <div className="text-sm font-bold text-yellow-400">
-              ${(betAmount * multiplier).toFixed(2)}
-            </div>
-          </div>
+
+            {/* Play Again Button */}
+            <motion.button
+              onClick={() => {
+                const { resetGame } = useGameStore.getState();
+                resetGame();
+                // Dispatch event to refresh balance
+                window.dispatchEvent(new CustomEvent('balanceUpdated'));
+              }}
+              className="mt-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white px-8 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
+            >
+              🎮 Play Again
+            </motion.button>
+          </motion.div>
         </motion.div>
       )}
 

@@ -239,6 +239,11 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         const result = await response.json();
         console.log('Win processed successfully:', result);
+        
+        // Dispatch event to refresh balance displays
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('balanceUpdated'));
+        }
       }
       // If lost, nothing needs to be added to balance (bet was already deducted)
     } catch (error) {
