@@ -160,7 +160,56 @@ export const GameBoard = () => {
   const { grid, currentRow, config, status, clickTile, betAmount, multiplier, cashOut, mode } = useGameStore();
   const [showMultiplierPopup, setShowMultiplierPopup] = useState(false);
   const [lastMultiplier, setLastMultiplier] = useState(1);
+
+  ///// Fahad
+  // Actual grid
+  console.log("how many grid", grid);
   
+  const getGridConfig = () => {
+    switch (mode) {
+      case 'easy':
+        return {
+          cols: 4,
+          rows: 9,
+          totalBoxes: 36,
+          gridClass: 'grid-cols-4 grid-rows-9'
+        };
+      case 'medium':
+        return {
+          cols: 3,
+          rows: 9,
+          totalBoxes: 27,
+          gridClass: 'grid-cols-3 grid-rows-9'
+        };
+      case 'hard':
+        return {
+          cols: 2,
+          rows: 9,
+          totalBoxes: 18,
+          gridClass: 'grid-cols-2 grid-rows-9'
+        };
+      default:
+        return {
+          cols: 4,
+          rows: 9,
+          totalBoxes: 36,
+          gridClass: 'grid-cols-4 grid-rows-9'
+        };
+    }
+  };
+
+  const gridConfig = getGridConfig();
+   const generateCustomGrid = () => {
+    const grid = [];
+    for (let i = 0; i < gridConfig.totalBoxes; i++) {
+      grid.push(((i % 3) + 1).toString());
+    }
+    return grid;
+  };
+  
+  const customGrid = generateCustomGrid();
+  ///// Fahad
+
   // Determine which chest to display based on game state
   const getChestDisplay = () => {
     if (status === 'won' || status === 'cashed_out') {
@@ -352,48 +401,25 @@ export const GameBoard = () => {
       )}
 
       {/* Game Grid - Full Width with proper spacing */}
-      <div className="flex flex-col items-center justify-center h-full w-full px-2 sm:px-4 pt-16 sm:pt-20 pb-16">
+      <div className="flex flex-col items-center h-full w-full px-2 sm:px-4 pt-16 sm:pt-20 pb-16">
         {/* Stone frame border around the entire grid */}
         <div 
-          className="relative inline-block"
+          className="relative  w-full "
           style={{
             backgroundImage: `url('/all%20assets/general%20stone%20frame%20display1-Photoroom.png')`,
              backgroundSize: '100% 140%',
              backgroundPosition: 'center',
              backgroundRepeat: 'no-repeat',
-             padding: '80px 25px 10px 25px', // Top, Right, Bottom, Left padding for custom frame positioning
-             width: 'fit-content',
-             height: 'fit-content'
+            padding: '94px 17px 10px 14px', // Top, Right, Bottom, Left padding for custom frame positioning
           }}
         >
-           <div className="flex flex-col justify-center items-center space-y-1.5 sm:space-y-2 md:space-y-3 p-4">
-          {grid.map((row, rowIndex) => (
+           <div className={`grid ${gridConfig.gridClass} gap-2 w-full p-2 items-center bg-[#4E1C0C]`}>
+          {customGrid.map((row, i) => (
             <motion.div
-              key={rowIndex}
-              className="flex space-x-1.5 sm:space-x-2 md:space-x-3"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: rowIndex * 0.1 }}
+              key={i}
+              className="bg-[#773016] h-[10vh] w-full"
             >
-              {row.map((tile, colIndex) => {
-                // Calculate which row should be clickable (bottom to top)
-                const targetRow = config.rows - 1 - currentRow;
-                  return (
-                    <Tile
-                      key={`${rowIndex}-${colIndex}`}
-                      tile={tile}
-                      row={rowIndex}
-                      col={colIndex}
-                      isClickable={
-                        status === 'playing' && 
-                        rowIndex === targetRow &&
-                        tile === 'hidden'
-                      }
-                      onClick={clickTile}
-                      gameMode={mode}
-                    />
-                  );
-              })}
+              {row}
             </motion.div>
           ))}
           </div>
