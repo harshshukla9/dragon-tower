@@ -262,7 +262,22 @@ export const GameBoard = () => {
 
   return (
     <div className="relative h-full w-full">
+      {/* Background Image - Full Width - Extends beyond padding */}
+      <div 
+        className="absolute inset-y-0 h-full "
+        style={{
+          backgroundImage: 'url(/all%20assets/game%20background.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          left: '-2rem',
+          right: '-2rem',
+          top: '-2rem',
+          width: 'calc(100% + 4rem)'
+        }}
+      />
       {/* Chest Display - Top Center */}
+      <div className="relative h-full w-full z-10">
       <motion.div
         className="absolute top-[-10px] left-1/3 transform -translate-x-1/2 z-30 flex justify-center items-center"
         initial={{ opacity: 0, scale: 0.8, y: -20 }}
@@ -480,6 +495,7 @@ export const GameBoard = () => {
           )}
           </div>
         </div>
+      </div>
       </div>
 
 

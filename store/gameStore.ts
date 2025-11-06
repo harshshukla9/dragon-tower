@@ -96,12 +96,16 @@ const generateGrid = (config: GameConfig): { grid: TileState[][], actualGrid: Ti
   return { grid, actualGrid };
 };
 
+// Initialize grid for default mode
+const initialConfig = GAME_CONFIGS.easy;
+const { grid: initialGrid, actualGrid: initialActualGrid } = generateGrid(initialConfig);
+
 export const useGameStore = create<GameState>((set, get) => ({
   mode: 'easy',
-  config: GAME_CONFIGS.easy,
+  config: initialConfig,
   currentRow: 0,
-  grid: [],
-  actualGrid: [],
+  grid: initialGrid,
+  actualGrid: initialActualGrid,
   status: 'idle',
   multiplier: 1,
   betAmount: 0,
@@ -204,10 +208,12 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   resetGame: () => {
+    const { config } = get();
+    const { grid, actualGrid } = generateGrid(config);
     set({
       currentRow: 0,
-      grid: [],
-      actualGrid: [],
+      grid,
+      actualGrid,
       status: 'idle',
       multiplier: 1,
     });

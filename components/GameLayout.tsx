@@ -1,14 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useGameStore } from '../store/gameStore';
 import { Header } from './Header';
 import { GameBoard } from './GameBoard';
 import { Controls } from './Controls';
 
 export const GameLayout = () => {
-  // Get game status
-  const gameStatus = useGameStore((state) => state.status);
   return (
     <div 
       className="min-h-screen w-full relative"
@@ -25,7 +22,7 @@ export const GameLayout = () => {
 
       {/* Main Game Area - Vertical Layout */}
       <div className="flex flex-col min-h-[calc(100vh-64px)] w-full">
-        {/* Game Board - Top Section */}
+        {/* Game Board - Top Section - Always visible from app load */}
         <motion.div
           className="flex-1 relative w-full"
           initial={{ opacity: 0, y: -50 }}
@@ -71,14 +68,14 @@ export const GameLayout = () => {
           </div>
         </motion.div>
 
-        {/* Controls Panel - Bottom Section */}
+        {/* Controls Panel - Bottom Section - Always visible below grid */}
         <motion.div
           className="w-full bg-black/30 backdrop-blur-sm border-t border-gray-800"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="p-2 sm:p-4">
+          <div className="p-2 sm:p-4 ">
             <Controls />
           </div>
         </motion.div>

@@ -67,6 +67,24 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
     }
   }, [address, fetchUserBalance, setWalletAddress])
 
+  // Set default bet amount to user balance when balance is first loaded
+  useEffect(() => {
+    if (userBalance && userBalance.balance > 0 && betInputValue === 0 && status === 'idle') {
+      // Round to 4 decimal places
+      const roundedBalance = Math.round(userBalance.balance * 10000) / 10000;
+      setBetInputValue(roundedBalance)
+    }
+  }, [userBalance, status])
+
+  // Restore bet amount when game ends (win/loss) for quick replay
+  useEffect(() => {
+    if ((status === 'won' || status === 'lost' || status === 'cashed_out') && betAmount > 0) {
+      // Round to 4 decimal places
+      const rounded = Math.round(betAmount * 10000) / 10000;
+      setBetInputValue(rounded)
+    }
+  }, [status, betAmount])
+
   // Listen for deposit completion, bet, and balance update events to refresh balance
   useEffect(() => {
     if (!address) return
@@ -97,8 +115,32 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   }, [address, fetchUserBalance])
 
   const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    setBetInputValue(value);
+    const inputValue = e.target.value;
+    
+    // Allow empty input
+    if (inputValue === '') {
+      setBetInputValue(0);
+      return;
+    }
+    
+    // Check if input has more than 4 decimal places
+    const decimalIndex = inputValue.indexOf('.');
+    if (decimalIndex !== -1) {
+      const decimalPart = inputValue.substring(decimalIndex + 1);
+      if (decimalPart.length > 4) {
+        // Truncate to 4 decimal places
+        const truncated = inputValue.substring(0, decimalIndex + 5);
+        const value = parseFloat(truncated) || 0;
+        const rounded = Math.round(value * 10000) / 10000;
+        setBetInputValue(rounded);
+        return;
+      }
+    }
+    
+    const value = parseFloat(inputValue) || 0;
+    // Round to 4 decimal places
+    const rounded = Math.round(value * 10000) / 10000;
+    setBetInputValue(rounded);
   };
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -106,11 +148,15 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   };
 
   const handleBetHalf = () => {
-    setBetInputValue(betInputValue / 2);
+    const newValue = betInputValue / 2;
+    const rounded = Math.round(newValue * 10000) / 10000;
+    setBetInputValue(rounded);
   };
 
   const handleBetDouble = () => {
-    setBetInputValue(betInputValue * 2);
+    const newValue = betInputValue * 2;
+    const rounded = Math.round(newValue * 10000) / 10000;
+    setBetInputValue(rounded);
   };
 
   const handleStartGame = async () => {
@@ -229,7 +275,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
      
 
       {/* Bet Amount */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         <div className="flex justify-between items-center">
           <label className="text-sm font-medium text-gray-300">Bet Amount</label>
           <div className="flex flex-col items-end">
@@ -268,10 +314,11 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
               >
                 <input
                   type="number"
-                  value={betInputValue || ''}
+                  value={betInputValue > 0 ? betInputValue.toFixed(4) : ''}
                   onChange={handleBetAmountChange}
                   placeholder="0.0000"
                   min="0"
+                  step="0.0001"
                   className="w-full px-10 bg-transparent text-white placeholder-white/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   style={{
                     MozAppearance: 'textfield'
@@ -417,7 +464,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
                 return (
                   <motion.button
                     key={amount}
-                    onClick={() => setBetAmount(amount)}
+                    onClick={() => setBetInputValue(amount)}
                     disabled={isPlaying || !!exceedsBalance}
                     className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                       exceedsBalance
