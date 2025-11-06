@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAccount } from 'wagmi'
 
 interface UserBalanceData {
@@ -13,7 +13,7 @@ export function UserBalanceDisplay() {
   const [isLoading, setIsLoading] = useState(false)
 
   // Fetch user balance from database
-  const fetchUserBalance = async () => {
+  const fetchUserBalance = useCallback(async () => {
     if (!address) return
 
     setIsLoading(true)
@@ -28,14 +28,16 @@ export function UserBalanceDisplay() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [address])
 
   useEffect(() => {
     fetchUserBalance()
-  }, [address])
+  }, [fetchUserBalance])
 
   // Listen for deposit completion and balance update events to refresh balance
   useEffect(() => {
+    if (!address) return
+
     const handleDepositCompleted = () => {
       fetchUserBalance()
     }
@@ -46,11 +48,13 @@ export function UserBalanceDisplay() {
 
     window.addEventListener('depositCompleted', handleDepositCompleted)
     window.addEventListener('balanceUpdated', handleBalanceUpdated)
+    window.addEventListener('betPlaced', handleBalanceUpdated)
     return () => {
       window.removeEventListener('depositCompleted', handleDepositCompleted)
       window.removeEventListener('balanceUpdated', handleBalanceUpdated)
+      window.removeEventListener('betPlaced', handleBalanceUpdated)
     }
-  }, [])
+  }, [address, fetchUserBalance])
 
   if (!address) {
     return null
@@ -63,14 +67,14 @@ export function UserBalanceDisplay() {
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
           <div className="text-sm">
-            <div className="text-gray-300">Game Balance</div>
+            <div className="text-gray-300">Balance</div>
             <div className="text-white font-semibold">
               {isLoading ? (
                 <span className="text-gray-400">Loading...</span>
               ) : (
                 <span className="text-purple-300">
                
-                {isLoading ? 'Loading...' : `${Number(userBalance?.balance || 0).toFixed(4)} MON`}
+                {isLoading ? 'Loading...' : `${Number(userBalance?.balance || 0).toFixed(2)} MON`}
 
                 </span>
               )}

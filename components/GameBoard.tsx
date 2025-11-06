@@ -252,7 +252,6 @@ export const GameBoard = () => {
         </div>
         
         <div className="text-center">
-          <div className="text-6xl mb-4 opacity-50">🏰</div>
           <div className="text-xl text-gray-400">Place your bet to start climbing</div>
         </div>
       </div>
@@ -265,7 +264,7 @@ export const GameBoard = () => {
     <div className="relative h-full w-full">
       {/* Chest Display - Top Center */}
       <motion.div
-        className="absolute top-[-20px] left-1/3 transform -translate-x-1/2 z-30 flex justify-center items-center"
+        className="absolute top-[-10px] left-1/3 transform -translate-x-1/2 z-30 flex justify-center items-center"
         initial={{ opacity: 0, scale: 0.8, y: -20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -274,12 +273,12 @@ export const GameBoard = () => {
           <img 
             src={getChestDisplay().image}
             alt={getChestDisplay().alt}
-            className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40  object-contain"
+            className="w-18 h-20 -translate-x-[-17px] sm:w-20 sm:h-20 object-contain"
           />
           {/* Status text overlay */}
           {status === 'won' && (
             <motion.div
-              className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold"
+              className="absolute -bottom-2 left-1/3 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.3 }}
@@ -289,7 +288,7 @@ export const GameBoard = () => {
           )}
           {status === 'cashed_out' && (
             <motion.div
-              className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-600 text-white px-3 py-1 rounded-full text-xs font-bold"
+              className="absolute -bottom-2 left-1/3 transform -translate-x-1/2 bg-yellow-600 text-white px-3 py-1 rounded-full text-xs font-bold"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.3 }}
@@ -299,7 +298,7 @@ export const GameBoard = () => {
           )}
           {status === 'lost' && (
             <motion.div
-              className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold"
+              className="absolute -bottom-2 left-1/3 transform -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.3 }}
@@ -334,7 +333,7 @@ export const GameBoard = () => {
       {/* Cashout Button - Bottom center */}
       {status === 'playing' && currentRow > 0 && (
         <motion.div
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20"
+          className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-20"
           initial={{ opacity: 1   }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -375,7 +374,7 @@ export const GameBoard = () => {
                 alert(`Failed to cashout: ${error instanceof Error ? error.message : 'Unknown error'}`);
               }
             }}
-            className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white  py-4 fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 rounded-xl font-bold transition-all duration-200 shadow-lg shadow-yellow-500/30 border border-yellow-400/50 text-lg"
+            className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white px-6 py-2 fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 rounded-xl font-bold transition-all duration-200 shadow-lg shadow-yellow-500/30 border border-yellow-400/50 text-base"
           >
             💰 Cash Out ${currentPayout.toFixed(2)}
           </button>
@@ -383,19 +382,19 @@ export const GameBoard = () => {
       )}
 
       {/* Game Grid - Full Width with proper spacing */}
-      <div className="flex flex-col items-center h-full w-full px-2 sm:px-4 pt-16 sm:pt-20 pb-16">
+      <div className="flex flex-col items-center h-full w-full px-2 pt-8 pb-4">
         {/* Stone frame border around the entire grid */}
         <div 
-          className="relative  w-full "
+          className="relative w-full"
           style={{
             backgroundImage: `url('/all%20assets/general%20stone%20frame%20display1-Photoroom.png')`,
-             backgroundSize: '100% 140%',
+             backgroundSize: '100% 120%',
              backgroundPosition: 'center',
              backgroundRepeat: 'no-repeat',
-            padding: '94px 17px 10px 14px', // Top, Right, Bottom, Left padding for custom frame positioning
+            padding: '60px 12px 8px 10px', // Top, Right, Bottom, Left padding for custom frame positioning
           }}
         >
-           <div className={`grid ${gridConfig.gridClass} gap-2 w-full p-2 items-center bg-[#4E1C0C]`}>
+           <div className={`grid ${gridConfig.gridClass} gap-1 w-full p-1 items-center bg-[#4E1C0C]`}>
           {grid.map((row, rowIdx) => 
             row.map((tile, colIdx) => {
               // Calculate the actual row index from bottom to top
@@ -403,16 +402,18 @@ export const GameBoard = () => {
               const isCurrentRow = rowIdx === targetRow;
               const isClickable = status === 'playing' && isCurrentRow;
               
-              // Get the tile background based on state - all rows use Active play grid (golden)
+              // Get the tile background based on state - only active row is golden
               const getTileBackground = () => {
                 if (tile === 'hidden') {
-                  // Use "Active play grid" for all rows to make them golden
+                  // Use "Active play grid" for clickable row, "general grid" for inactive rows
+                  const gridType = isClickable ? 'Active%20play%20grid' : 'general%20grid';
+                  
                   if (mode === 'easy') {
-                    return `url('/all%20assets/Active%20play%20grid%20easy%20mode.png')`;
+                    return `url('/all%20assets/${gridType}%20easy%20mode.png')`;
                   } else if (mode === 'medium') {
-                    return `url('/all%20assets/Active%20play%20grid%20medium%20mode.png')`;
+                    return `url('/all%20assets/${gridType}%20medium%20mode.png')`;
                   } else {
-                    return `url('/all%20assets/Active%20play%20grid%20Hard%20mode.png')`;
+                    return `url('/all%20assets/${gridType}%20Hard%20mode.png')`;
                   }
                 }
                 return '';
@@ -438,21 +439,27 @@ export const GameBoard = () => {
                 return null;
               };
 
-              // Get background color based on mode - all rows are golden/bright
+              // Get background color based on mode - only active row is golden
               const getTileBackgroundColor = () => {
-                if (mode === 'easy') {
-                  return '#D4A05A'; // Golden for easy mode
-                } else if (mode === 'medium') {
-                  return '#8B4513'; // Saddle brown for medium
+                if (isClickable) {
+                  // Active/clickable row - golden/bright
+                  if (mode === 'easy') {
+                    return '#D4A05A'; // Bright golden for active easy mode
+                  } else if (mode === 'medium') {
+                    return '#8B4513'; // Saddle brown for active medium
+                  } else {
+                    return '#8B4513'; // Saddle brown for active hard
+                  }
                 } else {
-                  return '#8B4513'; // Saddle brown for hard
+                  // Inactive rows - darker brown
+                  return '#773016'; // Dark brown for all inactive rows
                 }
               };
               
               return (
                 <motion.div
                   key={`${rowIdx}-${colIdx}`}
-                  className={`h-[10vh] w-full rounded-lg flex items-center justify-center text-white text-3xl font-bold ${
+                  className={`h-[7vh] w-full rounded-lg flex items-center justify-center text-white text-2xl font-bold ${
                     isClickable ? 'cursor-pointer hover:brightness-110' : 'cursor-not-allowed'
                   }`}
                   style={{
@@ -558,30 +565,75 @@ export const GameBoard = () => {
 
       {status === 'lost' && (
         <motion.div
-          className="absolute inset-0 flex items-center justify-center z-30"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
-          <div 
-            className="text-center rounded-xl p-8 backdrop-blur-sm relative"
-            style={{
-              backgroundImage: 'url(/all%20assets/failed%20button%20mockup.png)',
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              minHeight: '400px',
-              minWidth: '300px'
+          <motion.div
+            className="text-center relative"
+            initial={{ scale: 0.5, y: -100 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              duration: 0.6 
             }}
           >
-           <div className="text-lg text-red-500">
-              Lost: {betAmount.toFixed(2)}
-            </div>
-            <div className="text-3xl font-bold text-red-400 mb-2">Game Over!</div>
-          
+            <div 
+              className="relative flex flex-col items-center"
+              style={{
+                backgroundImage: 'url(/all%20assets/Lost%20chest.png)',
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                width: '350px',
+                height: '350px'
+              }}
+            >
+              {/* Lost Text - Above chest */}
+              <motion.div
+                className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
            
-          </div>
-         
+              </motion.div>
+
+              {/* Lost Amount - Inside chest area */}
+              <motion.div
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-5 py-1 border-2 border-red-400 shadow-xl text-center">
+                  <div className="text-lg text-red-300 mb-1">Lost</div>
+                  <div className="text-2xl font-bold text-white">
+                    ${betAmount.toFixed(2)}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Play Again Button */}
+            <motion.button
+              onClick={() => {
+                const { resetGame } = useGameStore.getState();
+                resetGame();
+                // Dispatch event to refresh balance
+                window.dispatchEvent(new CustomEvent('balanceUpdated'));
+              }}
+              className="mt-4 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white px-8 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
+            >
+              🎮 Play Again
+            </motion.button>
+          </motion.div>
         </motion.div>
       )}
 

@@ -28,7 +28,7 @@ const GAME_CONFIGS: Record<GameMode, GameConfig> = {
     multiplierStep: 1.425000,
   },
   hard: {
-    rows: 8,
+    rows: 9,
     cols: 2,
     safeTiles: 1,
     probability: 0.5,
@@ -244,8 +244,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('balanceUpdated'));
         }
+      } else {
+        // If lost, balance was already deducted when bet was placed, but refresh UI to show updated balance
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('balanceUpdated'));
+        }
       }
-      // If lost, nothing needs to be added to balance (bet was already deducted)
     } catch (error) {
       console.error('Failed to process game end:', error);
     }

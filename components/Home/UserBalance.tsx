@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useFrame } from '@/components/farcaster-provider'
 import { useAccount } from 'wagmi'
 import { usePlayerDeposits } from '../../smartcontracthooks'
@@ -19,7 +19,7 @@ export function UserBalance() {
   const { deposits: contractDeposits, isLoading: isLoadingContract, refetch: refetchContract } = usePlayerDeposits()
 
   // Fetch user balance from database
-  const fetchUserBalance = async () => {
+  const fetchUserBalance = useCallback(async () => {
     if (!address) return
 
     setIsLoading(true)
@@ -34,14 +34,16 @@ export function UserBalance() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [address])
 
   useEffect(() => {
     fetchUserBalance()
-  }, [address])
+  }, [fetchUserBalance])
 
   // Listen for storage events to refresh when deposit is completed
   useEffect(() => {
+    if (!address) return
+
     const handleStorageChange = () => {
       fetchUserBalance()
       refetchContract()
@@ -52,13 +54,15 @@ export function UserBalance() {
     // Also listen for custom events
     window.addEventListener('depositCompleted', handleStorageChange)
     window.addEventListener('balanceUpdated', handleStorageChange)
+    window.addEventListener('betPlaced', handleStorageChange)
 
     return () => {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('depositCompleted', handleStorageChange)
       window.removeEventListener('balanceUpdated', handleStorageChange)
+      window.removeEventListener('betPlaced', handleStorageChange)
     }
-  }, [address])
+  }, [address, fetchUserBalance, refetchContract])
 
   if (!context?.user || !address) {
     return null
@@ -79,7 +83,7 @@ export function UserBalance() {
 
         {/* Database Balance */}
         <div className="bg-green-100 p-3 rounded">
-          <p className="text-sm text-gray-600">Game Balance</p>
+          <p className="text-sm text-gray-600">Balance</p>
           <p className="text-lg font-semibold">
             {isLoading ? 'Loading...' : `${userBalance?.balance || 0}.toFixed(2) MON`}
           </p>

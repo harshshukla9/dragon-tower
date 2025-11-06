@@ -12,6 +12,7 @@ export function DepositButton() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [error, setError] = useState('')
   const depositAmountRef = useRef<string>('')
   const processedTxHashes = useRef<Set<string>>(new Set())
   const { isEthProviderAvailable } = useFrame()
@@ -106,13 +107,16 @@ export function DepositButton() {
         // Success! Clear form and close modal
         setAmount('')
         depositAmountRef.current = '' // Clear the ref
-        setIsModalOpen(false)
         refetchDeposits()
         
-        // Trigger refresh event for other components
+        // Trigger refresh events for other components
         window.dispatchEvent(new CustomEvent('depositCompleted'))
+        window.dispatchEvent(new CustomEvent('balanceUpdated'))
         
         alert(`🎉 Deposit successful!\n💰 Amount: ${depositAmount} MON\n🔗 Transaction: ${txHash.slice(0, 10)}...`)
+        
+        // Close modal after showing alert
+        setIsModalOpen(false)
         
       } catch (error) {
         console.error('Failed to save deposit to database:', error)
@@ -134,7 +138,7 @@ export function DepositButton() {
     
     if (!amount || parseFloat(amount) <= 0) {
       console.log('❌ Invalid amount, returning')
-      alert('Please enter a valid amount')
+      setError('Please enter a valid amount')
       return
     }
 
@@ -143,6 +147,16 @@ export function DepositButton() {
       alert('Please connect your wallet first')
       return
     }
+
+    // Check if amount exceeds wallet balance
+    if (balance && parseFloat(amount) > walletBalance) {
+      console.log('❌ Amount exceeds wallet balance')
+      setError('You do not have enough monad')
+      return
+    }
+
+    // Clear any previous errors
+    setError('')
 
     // Store the amount in ref before calling deposit
     depositAmountRef.current = amount
@@ -157,13 +171,41 @@ export function DepositButton() {
       alert('Please connect your wallet first')
       return
     }
+    setError('')
+    setIsProcessing(false)
     setIsModalOpen(true)
   }
 
   const closeModal = () => {
     setIsModalOpen(false)
     setAmount('')
+    setError('')
+    setIsProcessing(false)
     depositAmountRef.current = '' // Clear the ref
+  }
+
+  // Get wallet balance in MON
+  const walletBalance = balance ? Number(formatEther(balance.value)) : 0
+
+  // Validate amount when it changes
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newAmount = e.target.value
+    setAmount(newAmount)
+
+    // Validate if amount exceeds balance
+    if (newAmount && !isLoading && balance) {
+      const amountNum = parseFloat(newAmount)
+      if (isNaN(amountNum) || amountNum <= 0) {
+        setError('Amount must be greater than 0')
+      } else if (amountNum > walletBalance) {
+        setError('You do not have enough monad')
+      } else {
+        setError('')
+      }
+    } else {
+      // Clear error if input is empty
+      setError('')
+    }
   }
 
   return (
@@ -240,13 +282,19 @@ export function DepositButton() {
                 id="amount"
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={handleAmountChange}
                 placeholder="0.0"
                 step="0.001"
                 min="0"
-                className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-white/20 placeholder-white/60"
-                disabled={isDepositing || isProcessing}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-white bg-white/20 placeholder-white/60 ${
+                  error ? 'border-red-500 focus:ring-red-500' : 'border-white/30 focus:ring-blue-500'
+                }`}
+                disabled={isDepositing || isProcessing || isLoading}
               />
+              {/* Error Message */}
+              {error && (
+                <p className="mt-2 text-sm text-red-400">{error}</p>
+              )}
             </div>
 
 
@@ -260,7 +308,7 @@ export function DepositButton() {
               </button>
               <button
                 onClick={handleDeposit}
-                disabled={isDepositing || isProcessing || !amount}
+                disabled={Boolean(isDepositing || isProcessing || !amount || !!error || isLoading || (amount && parseFloat(amount) > walletBalance))}
                 className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDepositing ? 'Depositing to Smart Contract...' : 
@@ -269,12 +317,12 @@ export function DepositButton() {
             </div>
 
             {/* Status Messages */}
-            {isConfirmed && !isProcessing && (
+            {isConfirmed && isProcessing && (
               <p className="mt-3 text-green-400 text-sm text-center">
                 ✅ Smart contract deposit confirmed! Saving to database...
               </p>
             )}
-            {isProcessing && (
+            {isProcessing && !isConfirmed && (
               <p className="mt-3 text-blue-400 text-sm text-center">
                 💾 Saving deposit to database...
               </p>

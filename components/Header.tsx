@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { WalletActions } from './Home/WalletActions';
 import { DepositButton } from './Home/DepositButton';
+import { WithdrawButton } from './Home/WithdrawButton';
 import { UserBalanceDisplay } from './Home/UserBalanceDisplay';
 
 export const Header = () => {
@@ -19,7 +20,7 @@ export const Header = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent truncate">
-              Dragon Tower
+            Treasure Tower
             </div>
           </motion.div>
 
@@ -41,15 +42,18 @@ export const Header = () => {
           </motion.div>
         </div>
 
-        {/* Bottom Row - User Balance & Deposit Button */}
+        {/* Bottom Row - User Balance & Action Buttons */}
         <motion.div
-          className="flex items-center justify-between gap-3"
+          className="flex items-center justify-between gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <UserBalanceDisplay />
-          <DepositButton />
+          <div className="flex gap-2">
+            <DepositButton />
+            <WithdrawButton />
+          </div>
         </motion.div>
       </div>
     </header>

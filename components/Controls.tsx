@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useGameStore, type GameMode } from '../store/gameStore';
 import { useAccount } from 'wagmi';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface ControlsProps {
   onBetPlaced?: () => void;
@@ -19,6 +19,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   const { address } = useAccount()
   const [userBalance, setUserBalance] = useState<UserBalanceData | null>(null)
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
+  const [betInputValue, setBetInputValue] = useState<number>(0) // Local state for input field
 
   const {
     mode,
@@ -35,13 +36,13 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   } = useGameStore();
 
   const isPlaying = status === 'playing';
-  const hasInsufficientBalance = userBalance && betAmount > userBalance.balance;
-  const canStart = (status === 'idle' || status === 'won' || status === 'lost' || status === 'cashed_out') && betAmount > 0 && !hasInsufficientBalance;
+  const hasInsufficientBalance = userBalance && betInputValue > userBalance.balance;
+  const canStart = (status === 'idle' || status === 'won' || status === 'lost' || status === 'cashed_out') && betInputValue > 0 && !hasInsufficientBalance;
   const canCashOut = isPlaying;
   const canReset = status === 'won' || status === 'lost' || status === 'cashed_out';
 
   // Fetch user balance from database
-  const fetchUserBalance = async () => {
+  const fetchUserBalance = useCallback(async () => {
     if (!address) return
 
     setIsLoadingBalance(true)
@@ -50,32 +51,38 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
       if (response.ok) {
         const data = await response.json()
         setUserBalance(data.user)
+        console.log('Controls - Balance fetched:', data.user)
       }
     } catch (error) {
       console.error('Failed to fetch user balance:', error)
     } finally {
       setIsLoadingBalance(false)
     }
-  }
+  }, [address])
 
   useEffect(() => {
     fetchUserBalance()
     if (address) {
       setWalletAddress(address)
     }
-  }, [address])
+  }, [address, fetchUserBalance, setWalletAddress])
 
   // Listen for deposit completion, bet, and balance update events to refresh balance
   useEffect(() => {
+    if (!address) return
+
     const handleDepositCompleted = () => {
+      console.log('Controls - Deposit completed event received')
       fetchUserBalance()
     }
 
     const handleBetPlaced = () => {
+      console.log('Controls - Bet placed event received')
       fetchUserBalance()
     }
 
     const handleBalanceUpdated = () => {
+      console.log('Controls - Balance updated event received')
       fetchUserBalance()
     }
 
@@ -87,11 +94,11 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
       window.removeEventListener('betPlaced', handleBetPlaced)
       window.removeEventListener('balanceUpdated', handleBalanceUpdated)
     }
-  }, [])
+  }, [address, fetchUserBalance])
 
   const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
-    setBetAmount(value);
+    setBetInputValue(value);
   };
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -99,11 +106,11 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   };
 
   const handleBetHalf = () => {
-    setBetAmount(betAmount / 2);
+    setBetInputValue(betInputValue / 2);
   };
 
   const handleBetDouble = () => {
-    setBetAmount(betAmount * 2);
+    setBetInputValue(betInputValue * 2);
   };
 
   const handleStartGame = async () => {
@@ -111,6 +118,9 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
       try {
         // Reset game state first to ensure clean start
         resetGame();
+        
+        // Set bet amount in game store before starting
+        setBetAmount(betInputValue);
         
         // Call bet API to deduct amount from user balance
         const response = await fetch('/api/bet', {
@@ -120,7 +130,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
           },
           body: JSON.stringify({
             walletAddress: address,
-            betAmount: betAmount,
+            betAmount: betInputValue,
           }),
         });
 
@@ -143,13 +153,17 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
         // Start the game
         startGame();
         
+        // Clear the bet input field after successful bet (but game store keeps betAmount)
+        setBetInputValue(0);
+        
         // Only call onBetPlaced if it exists (for navigation purposes)
         if (onBetPlaced) {
           onBetPlaced();
         }
         
-        // Dispatch event to refresh balance
+        // Dispatch events to refresh balance displays
         window.dispatchEvent(new CustomEvent('betPlaced'));
+        window.dispatchEvent(new CustomEvent('balanceUpdated'));
       } catch (error) {
         console.error('Failed to place bet:', error);
         alert(`Failed to place bet: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -254,35 +268,38 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
               >
                 <input
                   type="number"
-                  value={betAmount || ''}
+                  value={betInputValue || ''}
                   onChange={handleBetAmountChange}
-                  placeholder="0.00000000"
+                  placeholder="0.0000"
                   min="0"
-                  step="0.001"
-                  className="w-full px-10 bg-transparent text-white placeholder-white/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-10 bg-transparent text-white placeholder-white/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  style={{
+                    MozAppearance: 'textfield'
+                  }}
                   disabled={isPlaying}
                 />
               </div>
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 text-sm">
-            <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
-          </span>
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1">
-            <button
-              onClick={handleBetHalf}
-              disabled={isPlaying}
-              className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-xs text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              1/2
-            </button>
-            <button
-              onClick={handleBetDouble}
-              disabled={isPlaying}
-              className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-xs text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              2x
-            </button>
-          </div>
-        </div>
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 text-sm">
+                <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
+              </span>
+            </div>
+            {/* Buttons below input in flex-row */}
+            <div className="flex flex-row gap-2 mt-2">
+              <button
+                onClick={handleBetHalf}
+                disabled={isPlaying}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                1/2
+              </button>
+              <button
+                onClick={handleBetDouble}
+                disabled={isPlaying}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                2x
+              </button>
+            </div>
       </div>
 
           {/* Difficulty Selection */}
@@ -347,8 +364,8 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
           </div>
         )}
 
-        {/* Cashout Button - Show when playing or has bet */}
-        {(isPlaying || betAmount > 0) && (
+        {/* Cashout Button - Show only when playing (not when lost or won) */}
+        {isPlaying && currentRow > 0 && (
           <motion.button
             onClick={handleCashOut}
             className="w-full py-4 px-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-bold text-lg transition-all duration-200 shadow-lg shadow-green-500/30 border border-green-400/50"
