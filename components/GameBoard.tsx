@@ -382,8 +382,8 @@ export const GameBoard = () => {
                 window.dispatchEvent(new CustomEvent('balanceUpdated'));
                 
                 // Set status to cashed_out to show winning chest popup
-                const { setStatus } = useGameStore.getState();
-                setStatus('cashed_out');
+                const { cashOut } = useGameStore.getState();
+                cashOut();
               } catch (error) {
                 console.error('Failed to cashout:', error);
                 alert(`Failed to cashout: ${error instanceof Error ? error.message : 'Unknown error'}`);

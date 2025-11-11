@@ -5,6 +5,7 @@ import { WalletActions } from './Home/WalletActions';
 import { DepositButton } from './Home/DepositButton';
 import { WithdrawButton } from './Home/WithdrawButton';
 import { UserBalanceDisplay } from './Home/UserBalanceDisplay';
+import { AudioController } from './AudioController';
 
 export const Header = () => {
   return (
@@ -32,6 +33,8 @@ export const Header = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <WalletActions />
+
+            <AudioController />
             
             {/* Profile Icon */}
             <button className="p-2 sm:p-2.5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-gray-800/50 flex-shrink-0">

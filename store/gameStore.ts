@@ -62,6 +62,12 @@ interface GameState {
   handleGameEnd: (isWin: boolean, betAmount: number, multiplier: number) => Promise<void>;
 }
 
+const dispatchGameEvent = (eventName: string, detail?: Record<string, unknown>) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(eventName, { detail }));
+  }
+};
+
 const generateRow = (cols: number, safeTiles: number): { hidden: TileState[], actual: TileState[] } => {
   const hiddenRow: TileState[] = new Array(cols).fill('hidden');
   const actualRow: TileState[] = new Array(cols).fill('trap');
@@ -168,13 +174,16 @@ export const useGameStore = create<GameState>((set, get) => ({
       const nextRow = currentRow + 1;
       
       if (nextRow >= config.rows) {
-        // Reached the top - player wins
+        // Reached the top - player wins - reveal all tiles
+        const revealedGrid = actualGrid.map(r => [...r]);
         set({
-          grid: newGrid,
+          grid: revealedGrid,
           currentRow: nextRow,
           multiplier: newMultiplier,
           status: 'won',
         });
+        dispatchGameEvent('game:safeReveal', { row, col });
+        dispatchGameEvent('game:win', { multiplier: newMultiplier });
         // Handle win in database
         if (walletAddress) {
           handleGameEnd(true, betAmount, newMultiplier);
@@ -186,13 +195,16 @@ export const useGameStore = create<GameState>((set, get) => ({
           currentRow: nextRow,
           multiplier: newMultiplier,
         });
+        dispatchGameEvent('game:safeReveal', { row, col });
       }
     } else {
-      // Hit a trap - game over
+      // Hit a trap - game over - reveal all tiles for transparency
+      const revealedGrid = actualGrid.map(r => [...r]);
       set({
-        grid: newGrid,
+        grid: revealedGrid,
         status: 'lost',
       });
+      dispatchGameEvent('game:trapReveal', { row, col });
       // Handle loss in database (bet was already deducted, nothing to add)
       if (walletAddress) {
         handleGameEnd(false, betAmount, multiplier);
@@ -201,9 +213,15 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   cashOut: () => {
-    const { status } = get();
+    const { status, multiplier, actualGrid } = get();
     if (status === 'playing') {
-      set({ status: 'won' });
+      // Reveal all tiles when cashing out for transparency
+      const revealedGrid = actualGrid.map(r => [...r]);
+      set({ 
+        grid: revealedGrid,
+        status: 'cashed_out' 
+      });
+      dispatchGameEvent('game:cashout', { multiplier });
     }
   },
 
@@ -217,6 +235,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       status: 'idle',
       multiplier: 1,
     });
+    dispatchGameEvent('game:reset');
   },
 
   handleGameEnd: async (isWin: boolean, betAmount: number, multiplier: number) => {
