@@ -29,7 +29,6 @@ export function WalletActions() {
 
   if (!isConnected) {
     return (
-      <div className="border border-[#333] rounded-xl p-3">
         <button
           type="button"
           className="bg-white text-black w-full rounded-lg p-2 text-sm font-medium active:scale-95 transition"
@@ -37,15 +36,13 @@ export function WalletActions() {
         >
           Connect Wallet
         </button>
-      </div>
     )
   }
 
   return (
     <div className="border border-[#333] rounded-xl  text-center">
       <p className="text-xs text-gray-300">
-        
-        <span className="bg-white text-black font-mono rounded-md px-2 py-[2px]">
+        <span className="bg-white text-black font-mono rounded-md px-2 py-1.5">
           {shortenAddress(address)}
         </span>
       </p>

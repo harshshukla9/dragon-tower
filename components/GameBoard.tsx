@@ -436,7 +436,7 @@ export const GameBoard = () => {
 
               const getTileContent = () => {
                 if (tile === 'hidden') {
-                  return '?';
+                  return '';
                 } else if (tile === 'safe') {
                   return (
                     <motion.img 
