@@ -360,10 +360,10 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
             <label className="block text-sm font-medium text-gray-300">Difficulty</label>
             <div className="relative">
               <Select value={mode} onValueChange={(val) => setMode(val as GameMode)} disabled={isPlaying}>
-                <SelectTrigger className="w-full h-12 px-4 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                <SelectTrigger className="w-full h-12 px-4 bg-black rounded-lg text-white border-[#51545F] focus:outline-none  focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed">
                   <SelectValue placeholder="Select Difficulty" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800/95 border border-gray-700 text-white">
+                <SelectContent className="bg-black border border-gray-700 text-white">
                   <SelectItem value="easy" className="cursor-pointer">Easy</SelectItem>
                   <SelectItem value="medium" className="cursor-pointer">Medium</SelectItem>
                   <SelectItem value="hard" className="cursor-pointer">Hard</SelectItem>
@@ -372,16 +372,15 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
             </div>
           </div>
 
+          <div className='space-y-3'>
+          <label className="text-sm font-medium text-gray-300">Total Profit (0.00x)</label>
+                <Input className='focus:outline-none outline-none border-[#51545F]' placeholder='0.0000'/>
+          </div>
+
           <div className="space-y-3">
             <label className="block text-sm font-medium text-gray-300">Quick Bet</label>
             <div 
-              className="grid grid-cols-2 gap-2 p-4 rounded-lg"
-              style={{
-                backgroundImage: 'url(/all%20assets/quick%20bet%20buttons.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
+              className="grid grid-cols-2 gap-2 rounded-lg w-full"
             >
               {[0.1, 0.5, 1, 5].map((amount) => {
                 const exceedsBalance = userBalance && amount > userBalance.balance;
@@ -390,13 +389,13 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
                     key={amount}
                     onClick={() => setBetInputValue(amount)}
                     disabled={isPlaying || !!exceedsBalance}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`py-2 px-3 rounded-lg !bg-[#30373B] text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                       exceedsBalance
                         ? 'text-red-300 cursor-not-allowed'
-                        : 'text-white hover:text-yellow-300'
+                        : 'text-white hover:text-[#F18301]'
                     }`}
                     style={{ backgroundColor: 'transparent' }}
-                    whileHover={!isPlaying && !exceedsBalance ? { scale: 1.05 } : {}}
+                    // whileHover={!isPlaying && !exceedsBalance ? { scale: 1.05 } : {}}
                     whileTap={!isPlaying && !exceedsBalance ? { scale: 0.95 } : {}}
                     title={exceedsBalance ? `Insufficient balance (${userBalance?.balance.toFixed(2)} MON)` : ''}
                   >
