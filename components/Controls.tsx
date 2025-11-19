@@ -374,7 +374,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
           <div className='space-y-3'>
           <label className="text-sm font-medium text-gray-300">Total Profit (0.00x)</label>
-                <Input className='focus:outline-none outline-none border-[#51545F]' placeholder='0.0000'/>
+                <Input className='focus:outline-none text-white outline-none border-[#51545F]' placeholder='0.0000'/>
           </div>
 
           <div className="space-y-3">
@@ -395,7 +395,6 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
                         : 'text-white hover:text-[#F18301]'
                     }`}
                     style={{ backgroundColor: 'transparent' }}
-                    // whileHover={!isPlaying && !exceedsBalance ? { scale: 1.05 } : {}}
                     whileTap={!isPlaying && !exceedsBalance ? { scale: 0.95 } : {}}
                     title={exceedsBalance ? `Insufficient balance (${userBalance?.balance.toFixed(2)} MON)` : ''}
                   >

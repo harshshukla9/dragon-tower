@@ -259,7 +259,7 @@ export const GameBoard = () => {
       />
 
       <div className=" h-full w-full z-10">
-      {/* <div
+      <div
         className="absolute top-[-10px] left-1/3 transform -translate-x-1/2 z-30 flex justify-center items-center"
       >
         <div className="relative">
@@ -284,17 +284,10 @@ export const GameBoard = () => {
             </div>
           )}
         </div>
-      </div> */}
+      </div>
 
-{/* <div className='w-full h-fit flex items-center justify-center'>
-          <img
-            src={getChestDisplay().image}
-            alt={getChestDisplay().alt}
-            className="w-18 h-20 absolute top-0 z-20 -translate-x-[-17px] sm:w-20 sm:h-20 object-contain"
-          />
-          </div> */}
 
-      {/* {showMultiplierPopup && (
+      {showMultiplierPopup && (
         <motion.div
           className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
           initial={{ opacity: 0, scale: 0.5, y: -20 }}
@@ -351,7 +344,7 @@ export const GameBoard = () => {
             💰 Cash Out ${currentPayout.toFixed(2)}
           </button>
         </motion.div>
-      )} */}
+      )}
 
       <div className="flex flex-col absolute top-0 items-end h-full w-full px-4">
       <img
@@ -587,13 +580,6 @@ export const GameBoard = () => {
           </motion.div>
         </motion.div>
       )}
-
-      {/* <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-20 left-4 w-8 h-8 bg-gray-600 rounded-full"></div>
-        <div className="absolute bottom-20 right-4 w-6 h-6 bg-gray-600 rounded-full"></div>
-        <div className="absolute top-40 right-8 w-4 h-4 bg-gray-600 rounded-full"></div>
-        <div className="absolute bottom-40 left-8 w-6 h-6 bg-gray-600 rounded-full"></div>
-      </div> */}
     </div>
   );
 };
