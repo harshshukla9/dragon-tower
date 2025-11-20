@@ -491,7 +491,7 @@ export const GameBoard = () => {
                     {multiplier.toFixed(2)}x
                   </div>
                   <div className="text-xl font-bold text-white">
-                    ${(betAmount * multiplier).toFixed(2)}
+                    {(betAmount * multiplier).toFixed(2)} MON
                   </div>
                 </div>
               </motion.div>
@@ -559,7 +559,7 @@ export const GameBoard = () => {
                 <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-5 py-1 border-2 border-red-400 shadow-xl text-center">
                   <div className="text-lg text-red-300 mb-1">Lost</div>
                   <div className="text-2xl font-bold text-white">
-                    ${betAmount.toFixed(2)}
+                    {betAmount.toFixed(2)} MON
                   </div>
                 </div>
               </motion.div>
