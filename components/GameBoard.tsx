@@ -158,8 +158,6 @@ export const GameBoard = () => {
   const [showMultiplierPopup, setShowMultiplierPopup] = useState(false);
   const [lastMultiplier, setLastMultiplier] = useState(1);
 
-  console.log("how many grid", grid);
-
   const getGridConfig = () => {
     switch (mode) {
       case 'easy':
@@ -427,7 +425,6 @@ export const GameBoard = () => {
                     backgroundRepeat: mode === 'easy' ? 'no-repeat' : 'repeat',
                   }}
                   onClick={() => isClickable && clickTile(rowIdx, colIdx)}
-                  whileHover={isClickable ? { scale: 1.05 } : {}}
                   whileTap={isClickable ? { scale: 0.95 } : {}}
                 >
                   {getTileContent()}
@@ -442,7 +439,7 @@ export const GameBoard = () => {
 
       {(status === 'won' || status === 'cashed_out') && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 "
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
@@ -458,16 +455,6 @@ export const GameBoard = () => {
               duration: 0.6
             }}
           >
-            <motion.div
-              className="mb-4 px-4"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              <div className="text-2xl sm:text-3xl font-bold text-yellow-400 whitespace-nowrap" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-                {status === 'won' ? '🏆 VICTORY! 🏆' : '💰 CASHED OUT! 💰'}
-              </div>
-            </motion.div>
 
             <div
               className="relative flex flex-col items-center justify-center"
@@ -476,21 +463,21 @@ export const GameBoard = () => {
                 backgroundSize: 'contain',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                width: '350px',
-                height: '350px'
+                width: '300px',
+                height: '300px'
               }}
             >
               <motion.div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                className="absolute top-[62%] left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
               >
                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-6 py-3 left-1/2 transform -translate-x-1/2 border-2 border-yellow-400 shadow-xl text-center">
-                  <div className="text-2xl font-bold text-yellow-400">
+                  <div className="text-lg font-bold text-yellow-400">
                     {multiplier.toFixed(2)}x
                   </div>
-                  <div className="text-xl font-bold text-white">
+                  <div className="text-lg font-bold text-white">
                     {(betAmount * multiplier).toFixed(2)} MON
                   </div>
                 </div>
@@ -508,7 +495,7 @@ export const GameBoard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              🎮 Play Again
+              Play Again
             </motion.button>
           </motion.div>
         </motion.div>
@@ -516,7 +503,7 @@ export const GameBoard = () => {
 
       {status === 'lost' && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
@@ -539,8 +526,8 @@ export const GameBoard = () => {
                 backgroundSize: 'contain',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                width: '350px',
-                height: '350px'
+                width: '200px',
+                height: '200px'
               }}
             >
               <motion.div
@@ -551,14 +538,14 @@ export const GameBoard = () => {
               >
               </motion.div>
               <motion.div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                className="absolute top-[60%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
               >
-                <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-5 py-1 border-2 border-red-400 shadow-xl text-center">
-                  <div className="text-lg text-red-300 mb-1">Lost</div>
-                  <div className="text-2xl font-bold text-white">
+                <div className="bg-gradient-to-r whitespace-nowrap from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-5 py-1 border-2 border-red-400 shadow-xl text-center">
+                  <div className="text-base text-red-300 mb-1">Lost</div>
+                  <div className="text-base font-bold text-white">
                     {betAmount.toFixed(2)} MON
                   </div>
                 </div>
@@ -575,7 +562,7 @@ export const GameBoard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              🎮 Play Again
+              Play Again
             </motion.button>
           </motion.div>
         </motion.div>
