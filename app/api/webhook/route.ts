@@ -46,22 +46,22 @@ import {
     const event = data.event;
   
     switch (event.event) {
-      case "frame_added":
+      case "miniapp_added":
         if (event.notificationDetails) {
           await setUserNotificationDetails(fid, event.notificationDetails);
           await sendFrameNotification({
             fid,
-            title: "Welcome to Frames v2",
-            body: "Frame is now added to your client",
+            title: "Welcome to Treasure Tower",
+            body: "Game is now added to your client",
           });
         } else {
           await deleteUserNotificationDetails(fid);
         }
-  
+
         break;
-      case "frame_removed":
+      case "miniapp_removed":
         await deleteUserNotificationDetails(fid);
-  
+
         break;
       case "notifications_enabled":
         await setUserNotificationDetails(fid, event.notificationDetails);
@@ -70,11 +70,11 @@ import {
           title: "Ding ding ding",
           body: "Notifications are now enabled",
         });
-  
+
         break;
       case "notifications_disabled":
         await deleteUserNotificationDetails(fid);
-  
+
         break;
     }
   
