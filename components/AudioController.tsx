@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 const AUDIO_ASSETS = {
-  background: '/all%20assets/BGM.mp3',
-  cashout: '/all%20assets/Cashout.mp3',
-  diamond: '/all%20assets/Diamond%20Reveal.mp3',
-  death: '/all%20assets/Death.mp3',
+  background: '/sounds/BGM.mp3',
+  cashout: '/sounds/Cashout.mp3',
+  diamond: '/sounds/Diamond%20Reveal.mp3',
+  death: '/sounds/Death.mp3',
 } as const;
 
 const LOCAL_STORAGE_KEY = 'treasure-tower-audio-settings';
