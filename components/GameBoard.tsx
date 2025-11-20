@@ -339,14 +339,14 @@ export const GameBoard = () => {
                 alert(`Failed to cashout: ${error instanceof Error ? error.message : 'Unknown error'}`);
               }
             }}
-            className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white px-6 py-2 fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 rounded-xl font-bold transition-all duration-200 shadow-lg shadow-yellow-500/30 border border-yellow-400/50 text-base"
+            className="bg-gradient-to-r whitespace-nowrap from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white px-6 py-2 fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 rounded-xl font-bold transition-all duration-200 shadow-lg shadow-yellow-500/30 border border-yellow-400/50 text-base"
           >
-            💰 Cash Out ${currentPayout.toFixed(2)}
+            Cash Out {currentPayout.toFixed(2)} MON
           </button>
         </motion.div>
       )}
 
-      <div className="flex flex-col absolute top-0 items-end h-full w-full px-4">
+      <div className="flex flex-col absolute top-4 items-end h-full w-full px-4">
       <img
             src={getChestDisplay().image}
             alt={getChestDisplay().alt}

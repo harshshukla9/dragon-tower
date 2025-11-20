@@ -47,6 +47,7 @@ export function DepositButton() {
   const [isProcessingWithdraw, setIsProcessingWithdraw] = useState(false)
   const [withdrawalData, setWithdrawalData] = useState<WithdrawalData | null>(null)
   const [isLoadingWithdrawalHistory, setIsLoadingWithdrawalHistory] = useState(false)
+  const [isLoadingUserBalance, setIsLoadingUserBalance] = useState(false)
   const [userBalance, setUserBalance] = useState<number>(0)
 
   const { data: balance, isLoading } = useBalance({
@@ -65,6 +66,7 @@ export function DepositButton() {
 
   const fetchUserBalance = useCallback(async () => {
     if (!address) return
+    setIsLoadingUserBalance(true)
     try {
       const response = await fetch(`/api/user-balance?walletAddress=${address}`)
       if (response.ok) {
@@ -73,6 +75,8 @@ export function DepositButton() {
       }
     } catch (error) {
       console.error('Failed to fetch user balance:', error)
+    } finally {
+      setIsLoadingUserBalance(false)
     }
   }, [address])
 
@@ -323,7 +327,7 @@ export function DepositButton() {
               </div>
             )}
 
-            <Tabs defaultValue='deposit' className='w-full'>
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)} className='w-full'>
               <TabsList className="grid grid-cols-2 bg-[#30333B] text-white">
                 <TabsTrigger
                   value="deposit"
@@ -410,10 +414,14 @@ export function DepositButton() {
                 )}
               </TabsContent>
 
-              <TabsContent value="withdraw" className="mt-6 space-y-4 text-white">
+              <TabsContent value="withdraw" className="mt-6 max-h-[40vh] overflow-y-auto space-y-4 text-white">
                 <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex flex-col gap-1">
                   <p className="text-xs uppercase tracking-wide text-white/60">Available Balance</p>
-                  <p className="text-2xl font-semibold text-emerald-300">{userBalance.toFixed(4)} MON</p>
+                  {isLoadingUserBalance ? (
+                    <p className="text-2xl font-semibold text-emerald-300">Loading...</p>
+                  ) : (
+                    <p className="text-2xl font-semibold text-emerald-300">{userBalance.toFixed(4)} MON</p>
+                  )}
                   <p className="text-xs text-white/60">Minimum withdrawal {MIN_WITHDRAWAL_AMOUNT} MON</p>
                 </div>
 
