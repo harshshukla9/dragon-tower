@@ -26,9 +26,7 @@ const safelyPlay = (audio?: HTMLAudioElement | null) => {
   if (!audio) return;
   const playPromise = audio.play();
   if (playPromise) {
-    playPromise.catch(() => {
-      /* Autoplay might be blocked until next interaction */
-    });
+    playPromise.catch(() => {});
   }
 };
 
@@ -80,7 +78,6 @@ export const AudioController = () => {
     }
   }, []);
 
-  // Restore settings from storage
   useEffect(() => {
     const settings = loadPersistedSettings();
     setBgmVolume(settings.bgmVolume);
@@ -88,12 +85,10 @@ export const AudioController = () => {
     setIsMounted(true);
   }, [loadPersistedSettings]);
 
-  // Persist whenever sliders change
   useEffect(() => {
     persistSettings({ bgmVolume, sfxVolume });
   }, [bgmVolume, persistSettings, sfxVolume]);
 
-  // Initialise audio instances
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
@@ -151,7 +146,6 @@ export const AudioController = () => {
     applyVolumes();
   }, [applyVolumes]);
 
-  // Attempt autoplay and register fallback on first interaction
   useEffect(() => {
     if (!isReady || !backgroundRef.current) {
       return;
@@ -194,7 +188,6 @@ export const AudioController = () => {
     [sfxVolume],
   );
 
-  // Register game events for SFX
   useEffect(() => {
     if (!isReady) {
       return;
@@ -223,7 +216,6 @@ export const AudioController = () => {
     };
   }, [isReady, playSfx]);
 
-  // Close panel when clicking outside
   useEffect(() => {
     if (!isExpanded) {
       return;
@@ -232,22 +224,18 @@ export const AudioController = () => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       
-      // Don't close if clicking the button
       if (buttonRef.current?.contains(target)) {
         return;
       }
       
-      // Don't close if clicking inside the panel
       const panel = document.getElementById('audio-controls-panel');
       if (panel?.contains(target)) {
         return;
       }
       
-      // Close if clicking anywhere else
       setIsExpanded(false);
     };
 
-    // Use a slight delay to prevent immediate closure
     const timer = setTimeout(() => {
       window.addEventListener('pointerdown', handleClickOutside);
     }, 100);
@@ -268,7 +256,6 @@ export const AudioController = () => {
     setSfxVolume((prev) => (prev <= 0 ? DEFAULT_SETTINGS.sfxVolume : 0));
   };
 
-  // Update button position when expanded
   useEffect(() => {
     if (!isExpanded || !buttonRef.current) {
       return;
@@ -298,7 +285,7 @@ export const AudioController = () => {
       id="audio-controls-panel"
       role="dialog"
       aria-label="Game audio settings"
-      className="fixed w-64 max-w-[90vw] rounded-xl bg-black/95 border border-white/20 shadow-2xl backdrop-blur-md p-4 space-y-4 z-[99999]"
+      className="fixed w-64 rounded-xl bg-black/95 border border-white/20 shadow-2xl backdrop-blur-md p-4 space-y-4 z-[99999]"
       style={{
         top: `${buttonPosition.top}px`,
         right: `${buttonPosition.right}px`,
@@ -380,7 +367,7 @@ export const AudioController = () => {
         aria-expanded={isExpanded}
         aria-controls="audio-controls-panel"
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="p-2 sm:p-2.5 rounded-full bg-black/40 border border-white/10 text-white hover:bg-black/60 transition-colors"
+        className="px-2 py-1 rounded-full bg-black/40 border border-white/10 text-white hover:bg-black/60 transition-colors"
       >
         <span aria-hidden="true">{bgmVolume <= 0 && sfxVolume <= 0 ? '🔇' : '🔊'}</span>
       </button>
@@ -389,4 +376,3 @@ export const AudioController = () => {
     </div>
   );
 };
-

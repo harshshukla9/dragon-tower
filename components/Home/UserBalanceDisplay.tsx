@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAccount } from 'wagmi'
+import { RefreshCcw } from 'lucide-react';
 
 interface UserBalanceData {
   balance: number
@@ -12,7 +13,6 @@ export function UserBalanceDisplay() {
   const [userBalance, setUserBalance] = useState<UserBalanceData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Fetch user balance from database
   const fetchUserBalance = useCallback(async () => {
     if (!address) return
 
@@ -34,7 +34,6 @@ export function UserBalanceDisplay() {
     fetchUserBalance()
   }, [fetchUserBalance])
 
-  // Listen for deposit completion and balance update events to refresh balance
   useEffect(() => {
     if (!address) return
 
@@ -62,10 +61,7 @@ export function UserBalanceDisplay() {
 
   return (
     <div className="flex items-center gap-3">
-      {/* Database Balance Display */}
-      <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg px-3 py-2">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+      <div className="bg-purple-600/20 border whitespace-nowrap border-purple-500/30 rounded-lg px-2 py-2 flex items-start">
           <div className="text-sm">
             <div className="text-gray-300">Balance</div>
             <div className="text-white font-semibold">
@@ -73,39 +69,21 @@ export function UserBalanceDisplay() {
                 <span className="text-gray-400">Loading...</span>
               ) : (
                 <span className="text-purple-300">
-               
-                {isLoading ? 'Loading...' : `${Number(userBalance?.balance || 0).toFixed(2)} MON`}
-
+                  {isLoading ? 'Loading...' : `${Number(userBalance?.balance || 0).toFixed(2)} MON`}
                 </span>
               )}
             </div>
           </div>
-        </div>
-      </div>
-
-    
-
-      {/* Refresh Button */}
-      <button
+          <button
         onClick={fetchUserBalance}
         disabled={isLoading}
         className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-gray-800/50 disabled:opacity-50"
         title="Refresh balance"
       >
-        <svg 
-          className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
-          />
-        </svg>
+        <RefreshCcw className={`${isLoading ? 'animate-spin' : ''} text-white`} size={12} />
+        
       </button>
+      </div>
     </div>
   )
 }

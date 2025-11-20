@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useGameStore, type GameMode } from '../store/gameStore';
 import { useAccount } from 'wagmi';
 import { useState, useEffect, useCallback } from 'react';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface ControlsProps {
   onBetPlaced?: () => void;
@@ -19,7 +21,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   const { address } = useAccount()
   const [userBalance, setUserBalance] = useState<UserBalanceData | null>(null)
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
-  const [betInputValue, setBetInputValue] = useState<number>(0) // Local state for input field
+  const [betInputValue, setBetInputValue] = useState<number>(0)
 
   const {
     mode,
@@ -41,7 +43,6 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   const canCashOut = isPlaying;
   const canReset = status === 'won' || status === 'lost' || status === 'cashed_out';
 
-  // Fetch user balance from database
   const fetchUserBalance = useCallback(async () => {
     if (!address) return
 
@@ -67,25 +68,20 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
     }
   }, [address, fetchUserBalance, setWalletAddress])
 
-  // Set default bet amount to user balance when balance is first loaded
   useEffect(() => {
     if (userBalance && userBalance.balance > 0 && betInputValue === 0 && status === 'idle') {
-      // Round to 4 decimal places
       const roundedBalance = Math.round(userBalance.balance * 10000) / 10000;
       setBetInputValue(roundedBalance)
     }
   }, [userBalance, status])
 
-  // Restore bet amount when game ends (win/loss) for quick replay
   useEffect(() => {
     if ((status === 'won' || status === 'lost' || status === 'cashed_out') && betAmount > 0) {
-      // Round to 4 decimal places
       const rounded = Math.round(betAmount * 10000) / 10000;
       setBetInputValue(rounded)
     }
   }, [status, betAmount])
 
-  // Listen for deposit completion, bet, and balance update events to refresh balance
   useEffect(() => {
     if (!address) return
 
@@ -116,19 +112,16 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
   const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    
-    // Allow empty input
+
     if (inputValue === '') {
       setBetInputValue(0);
       return;
     }
-    
-    // Check if input has more than 4 decimal places
+
     const decimalIndex = inputValue.indexOf('.');
     if (decimalIndex !== -1) {
       const decimalPart = inputValue.substring(decimalIndex + 1);
       if (decimalPart.length > 4) {
-        // Truncate to 4 decimal places
         const truncated = inputValue.substring(0, decimalIndex + 5);
         const value = parseFloat(truncated) || 0;
         const rounded = Math.round(value * 10000) / 10000;
@@ -136,9 +129,8 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
         return;
       }
     }
-    
+
     const value = parseFloat(inputValue) || 0;
-    // Round to 4 decimal places
     const rounded = Math.round(value * 10000) / 10000;
     setBetInputValue(rounded);
   };
@@ -162,13 +154,9 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   const handleStartGame = async () => {
     if (canStart) {
       try {
-        // Reset game state first to ensure clean start
         resetGame();
-        
-        // Set bet amount in game store before starting
         setBetAmount(betInputValue);
-        
-        // Call bet API to deduct amount from user balance
+
         const response = await fetch('/api/bet', {
           method: 'POST',
           headers: {
@@ -187,8 +175,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
         const result = await response.json();
         console.log('Bet placed successfully:', result);
-        
-        // Update local balance state
+
         if (userBalance) {
           setUserBalance({
             ...userBalance,
@@ -196,18 +183,11 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
           });
         }
 
-        // Start the game
         startGame();
-        
-        // Clear the bet input field after successful bet (but game store keeps betAmount)
         setBetInputValue(0);
-        
-        // Only call onBetPlaced if it exists (for navigation purposes)
         if (onBetPlaced) {
           onBetPlaced();
         }
-        
-        // Dispatch events to refresh balance displays
         window.dispatchEvent(new CustomEvent('betPlaced'));
         window.dispatchEvent(new CustomEvent('balanceUpdated'));
       } catch (error) {
@@ -242,8 +222,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
       const result = await response.json();
       console.log('Cashout successful:', result);
-      
-      // Update local balance state
+
       if (userBalance) {
         setUserBalance({
           ...userBalance,
@@ -251,10 +230,8 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
         });
       }
 
-      // Dispatch event to refresh all balance displays
       window.dispatchEvent(new CustomEvent('balanceUpdated'));
 
-      // Call the game store cashout
       cashOut();
     } catch (error) {
       console.error('Failed to cashout:', error);
@@ -266,113 +243,34 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
   return (
     <div 
-      className="backdrop-blur-sm rounded-xl p-4 space-y-4"
-      style={{
-        backgroundColor: 'rgba(0,0,0,0.3)' // Semi-transparent to show lava background
-      }}
+      className="py-2 px-2 flex flex-col gap-4"
     >
-      {/* Mode Tabs - Removed Auto for cleaner interface */}
-     
 
-      {/* Bet Amount */}
-      <div className="space-y-1">
-        <div className="flex justify-between items-center">
-          <label className="text-sm font-medium text-gray-300">Bet Amount</label>
-          <div className="flex flex-col items-end">
-            {/* <span className="text-sm text-white">{betAmount.toFixed(2)}</span>
-            {userBalance && (
-              <span className="text-xs text-gray-400">
-                Balance: {userBalance.balance.toFixed(2)} MON
-              </span>
-            )} */}
-          </div>
-        </div>
-        
-        {/* Insufficient Balance Warning */}
-        {hasInsufficientBalance && (
-          <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-              <div className="text-sm text-red-300">
-                <div className="font-medium">Insufficient Balance</div>
-                <div className="text-xs">
-                  You need {betAmount.toFixed(2)} MON but only have {userBalance?.balance.toFixed(2)} MON
-                </div>
+<div className="">
+{isPlaying && (
+          <div className="bg-gradient-to-r from-green-900/30 via-emerald-900/20 to-green-900/30 flex rounded-t-lg px-4 py-3 items-center justify-between border border-green-500/40 shadow-lg shadow-green-500/10">
+            <div className="flex flex-col">
+              <div className="text-xs uppercase tracking-wider text-green-300/70 mb-1 font-medium">
+                Multiplier
+              </div>
+              <div className="text-3xl font-bold text-green-400 tracking-tight">
+                {multiplier.toFixed(2)}<span className="text-xl">x</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <div className="text-xs uppercase tracking-wider text-gray-400/70 mb-1 font-medium">
+                Available
+              </div>
+              <div className="text-xl font-semibold text-white">
+                {(betAmount * multiplier).toFixed(2)} <span className="text-sm text-gray-300">MON</span>
               </div>
             </div>
           </div>
         )}
-            <div className="relative">
-              <div 
-                className="w-full h-12 rounded-lg flex items-center px-4"
-                style={{
-                  backgroundImage: 'url(/all%20assets/bet%20amount%20bar.png)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              >
-                <input
-                  type="number"
-                  value={betInputValue > 0 ? betInputValue.toFixed(4) : ''}
-                  onChange={handleBetAmountChange}
-                  placeholder="0.0000"
-                  min="0"
-                  step="0.0001"
-                  className="w-full px-10 bg-transparent text-white placeholder-white/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  style={{
-                    MozAppearance: 'textfield'
-                  }}
-                  disabled={isPlaying}
-                />
-              </div>
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 text-sm">
-                <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
-              </span>
-            </div>
-            {/* Buttons below input in flex-row */}
-            <div className="flex flex-row gap-2 mt-2">
-              <button
-                onClick={handleBetHalf}
-                disabled={isPlaying}
-                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                1/2
-              </button>
-              <button
-                onClick={handleBetDouble}
-                disabled={isPlaying}
-                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                2x
-              </button>
-            </div>
-      </div>
-
-          {/* Difficulty Selection */}
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-300">Difficulty</label>
-            <div className="relative">
-              <select
-                value={mode}
-                onChange={handleModeChange}
-                className="w-full h-12 px-4 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isPlaying}
-              >
-                <option value="easy" className="bg-gray-800 text-white">Easy</option>
-                <option value="medium" className="bg-gray-800 text-white">Medium</option>
-                <option value="hard" className="bg-gray-800 text-white">Hard</option>
-              </select>
-            </div>
-          </div>
-
-      {/* Action Buttons */}
-      <div className="space-y-3">
-            {/* Main Action Button */}
             <motion.button
               onClick={canStart ? handleStartGame : canCashOut ? handleCashOut : handleStartGame}
               disabled={!canStart && !canCashOut && !canReset}
-              className="w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-200 relative"
+              className="w-full py-2 text-white rounded-b-lg font-semibold text-lg"
               style={{
                 backgroundImage: 'url(/all%20assets/bet%20and%20cashout%20main%20button.png)',
                 backgroundSize: 'cover',
@@ -380,7 +278,6 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
                 backgroundRepeat: 'no-repeat',
                 backgroundColor: 'transparent'
               }}
-              whileHover={canStart || canCashOut || canReset ? { scale: 1.02 } : {}}
               whileTap={canStart || canCashOut || canReset ? { scale: 0.98 } : {}}
             >
           {hasInsufficientBalance 
@@ -395,69 +292,93 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
           }
         </motion.button>
 
-        {/* Current Multiplier Display - Show when playing */}
-        {isPlaying && (
-          <div className="bg-gray-700/50 rounded-lg p-4 text-center border border-gray-600/50">
-            <div className="text-sm text-gray-300 mb-1">Current Multiplier</div>
-            <div className="text-2xl font-bold text-green-400 mb-2">
-              {multiplier.toFixed(2)}x
-            </div>
-            <div className="text-sm text-gray-400">
-              ${(betAmount * multiplier).toFixed(2)} available
-            </div>
-            <div className="text-xs text-gray-500 mt-2">
-              Row: {currentRow} | Status: {status}
-            </div>
-          </div>
-        )}
-
-        {/* Cashout Button - Show only when playing (not when lost or won) */}
-        {isPlaying && currentRow > 0 && (
-          <motion.button
-            onClick={handleCashOut}
-            className="w-full py-4 px-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-bold text-lg transition-all duration-200 shadow-lg shadow-green-500/30 border border-green-400/50"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <div className="flex items-center justify-center px-5 gap-2">
-             Cash Out {(betAmount * multiplier).toFixed(2)}
-             <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
-             </div>
-          </motion.button>
-        )}
       </div>
 
-      {/* Total Profit */}
-      {/* <div className="space-y-3">
+      <div className="space-y-1">
         <div className="flex justify-between items-center">
-          <label className="text-sm font-medium text-gray-300">
-            Total Profit ({multiplier.toFixed(2)}x)
-          </label>
-          <span className="text-sm text-white">{totalProfit.toFixed(2)}</span>
+          <label className="text-sm font-medium text-gray-300">Bet Amount</label>
         </div>
-        <div className="bg-gray-700/50 rounded-lg px-4 py-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-orange-400 text-sm">
-            <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
-            </span>
-            <span className="text-white font-$o text-sm">
-              {totalProfit.toFixed(8)}
-            </span>
+        {hasInsufficientBalance && (
+          <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-red-300">
+                <div className="font-medium">Insufficient Balance</div>
+                <div className="text-xs">
+                  You need {betInputValue.toFixed(2)} MON but only have {userBalance?.balance.toFixed(2)} MON
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div> */}
+        )}
+            <div className="relative flex">
+              <Input 
+                placeholder='0.0000' 
+                type="number" 
+                value={betInputValue > 0 ? betInputValue : ''} 
+                disabled={isPlaying} 
+                onChange={handleBetAmountChange}  
+                className='flex-1 rounded-none focus:outline-none border-gray-600 bg-black text-white rounded-l-lg' 
+              />
+                {/* <input
+                  type="number"
+                  value={betInputValue > 0 ? betInputValue.toFixed(4) : ''}
+                  onChange={handleBetAmountChange}
+                  placeholder="0.0000"
+                  min="0"
+                  step="0.0001"
+                  className=""
+                  style={{
+                    MozAppearance: 'textfield'
+                  }}
+                  disabled={isPlaying}
+                />
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 text-sm">
+                <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
+              </span> */}
+            <div className="flex">
+              <button
+                onClick={handleBetHalf}
+                disabled={isPlaying}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-sm text-white  disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                1/2
+              </button>
+              <button
+                onClick={handleBetDouble}
+                disabled={isPlaying}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-sm text-white rounded-r-lg  disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                2x
+              </button>
+            </div>
+            </div>
+      </div>
 
-          {/* Quick Bet Buttons */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-300">Difficulty</label>
+            <div className="relative">
+              <Select value={mode} onValueChange={(val) => setMode(val as GameMode)} disabled={isPlaying}>
+                <SelectTrigger className="w-full h-12 px-4 bg-black rounded-lg text-white border-[#51545F] focus:outline-none  focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <SelectValue placeholder="Select Difficulty" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border border-gray-700 text-white">
+                  <SelectItem value="easy" className="cursor-pointer">Easy</SelectItem>
+                  <SelectItem value="medium" className="cursor-pointer">Medium</SelectItem>
+                  <SelectItem value="hard" className="cursor-pointer">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* <div className='space-y-3'>
+          <label className="text-sm font-medium text-gray-300">Total Profit (0.00x)</label>
+                <Input className='focus:outline-none text-white outline-none border-[#51545F]' placeholder='0.0000'/>
+          </div>
+
           <div className="space-y-3">
             <label className="block text-sm font-medium text-gray-300">Quick Bet</label>
             <div 
-              className="grid grid-cols-2 gap-2 p-4 rounded-lg"
-              style={{
-                backgroundImage: 'url(/all%20assets/quick%20bet%20buttons.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
+              className="grid grid-cols-2 gap-2 rounded-lg w-full"
             >
               {[0.1, 0.5, 1, 5].map((amount) => {
                 const exceedsBalance = userBalance && amount > userBalance.balance;
@@ -466,13 +387,12 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
                     key={amount}
                     onClick={() => setBetInputValue(amount)}
                     disabled={isPlaying || !!exceedsBalance}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`py-2 px-3 rounded-lg !bg-[#30373B] text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                       exceedsBalance
                         ? 'text-red-300 cursor-not-allowed'
-                        : 'text-white hover:text-yellow-300'
+                        : 'text-white hover:text-[#F18301]'
                     }`}
                     style={{ backgroundColor: 'transparent' }}
-                    whileHover={!isPlaying && !exceedsBalance ? { scale: 1.05 } : {}}
                     whileTap={!isPlaying && !exceedsBalance ? { scale: 0.95 } : {}}
                     title={exceedsBalance ? `Insufficient balance (${userBalance?.balance.toFixed(2)} MON)` : ''}
                   >
@@ -481,7 +401,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
                 );
               })}
             </div>
-          </div>
+          </div> */}
     </div>
   );
 };
