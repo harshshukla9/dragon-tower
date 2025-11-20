@@ -18,7 +18,7 @@ interface AudioSettings {
 }
 
 const DEFAULT_SETTINGS: AudioSettings = {
-  bgmVolume: 0.35,
+  bgmVolume: 0.02,
   sfxVolume: 0.7,
 };
 

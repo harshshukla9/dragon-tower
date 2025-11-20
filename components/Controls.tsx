@@ -39,7 +39,8 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
   const isPlaying = status === 'playing';
   const hasInsufficientBalance = userBalance && betInputValue > userBalance.balance;
-  const canStart = (status === 'idle' || status === 'won' || status === 'lost' || status === 'cashed_out') && betInputValue > 0 && !hasInsufficientBalance;
+  const isBelowMinimum = betInputValue > 0 && betInputValue < 0.01;
+  const canStart = (status === 'idle' || status === 'won' || status === 'lost' || status === 'cashed_out') && betInputValue >= 0.01 && !hasInsufficientBalance;
   const canCashOut = isPlaying;
   const canReset = status === 'won' || status === 'lost' || status === 'cashed_out';
 
@@ -68,16 +69,12 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
     }
   }, [address, fetchUserBalance, setWalletAddress])
 
-  useEffect(() => {
-    if (userBalance && userBalance.balance > 0 && betInputValue === 0 && status === 'idle') {
-      const roundedBalance = Math.round(userBalance.balance * 10000) / 10000;
-      setBetInputValue(roundedBalance)
-    }
-  }, [userBalance, status])
+  // Don't auto-set bet amount - keep it blank on initial load
+  // (removed auto-fill logic)
 
   useEffect(() => {
     if ((status === 'won' || status === 'lost' || status === 'cashed_out') && betAmount > 0) {
-      const rounded = Math.round(betAmount * 10000) / 10000;
+      const rounded = Math.round(betAmount * 100) / 100;
       setBetInputValue(rounded)
     }
   }, [status, betAmount])
@@ -121,17 +118,17 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
     const decimalIndex = inputValue.indexOf('.');
     if (decimalIndex !== -1) {
       const decimalPart = inputValue.substring(decimalIndex + 1);
-      if (decimalPart.length > 4) {
-        const truncated = inputValue.substring(0, decimalIndex + 5);
+      if (decimalPart.length > 2) {
+        const truncated = inputValue.substring(0, decimalIndex + 3);
         const value = parseFloat(truncated) || 0;
-        const rounded = Math.round(value * 10000) / 10000;
+        const rounded = Math.round(value * 100) / 100;
         setBetInputValue(rounded);
         return;
       }
     }
 
     const value = parseFloat(inputValue) || 0;
-    const rounded = Math.round(value * 10000) / 10000;
+    const rounded = Math.round(value * 100) / 100;
     setBetInputValue(rounded);
   };
 
@@ -141,13 +138,13 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
 
   const handleBetHalf = () => {
     const newValue = betInputValue / 2;
-    const rounded = Math.round(newValue * 10000) / 10000;
-    setBetInputValue(rounded);
+    const rounded = Math.round(newValue * 100) / 100;
+    setBetInputValue(Math.max(0.01, rounded));
   };
 
   const handleBetDouble = () => {
     const newValue = betInputValue * 2;
-    const rounded = Math.round(newValue * 10000) / 10000;
+    const rounded = Math.round(newValue * 100) / 100;
     setBetInputValue(rounded);
   };
 
@@ -282,6 +279,8 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
             >
           {hasInsufficientBalance 
             ? 'Insufficient Balance' 
+            : isBelowMinimum
+            ? 'Minimum 0.01 MON'
             : canStart 
             ? 'Bet' 
             : canCashOut 
@@ -310,13 +309,27 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
             </div>
           </div>
         )}
+        {isBelowMinimum && (
+          <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-yellow-300">
+                <div className="font-medium">Minimum Bet Required</div>
+                <div className="text-xs">
+                  Minimum bet amount is 0.01 MON
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
             <div className="relative flex">
               <Input 
-                placeholder='0.0000' 
+                placeholder='0.00' 
                 type="number" 
-                value={betInputValue > 0 ? betInputValue : ''} 
+                value={betInputValue > 0 ? betInputValue.toFixed(2) : ''} 
                 disabled={isPlaying} 
-                onChange={handleBetAmountChange}  
+                onChange={handleBetAmountChange}
+                min="0.01"
+                step="0.01"
                 className='flex-1 rounded-none focus:outline-none border-gray-600 bg-black text-white rounded-l-lg' 
               />
                 {/* <input
