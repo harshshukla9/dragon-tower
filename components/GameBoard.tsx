@@ -364,7 +364,7 @@ export const GameBoard = () => {
             className="w-18 h-20 absolute -top-12 left-[35%] z-20 -translate-x-[-17px] object-contain"
           />
           <div className="overflow-hidden relative w-full h-[60vh] flex flex-col items-center">
-            <img src="./all%20assets/top-Border.png" alt="top-border" />
+            <img src="./all%20assets/Top-Border.png" alt="top-border" />
             <div className="w-full h-[58vh] overflow-hidden p-2 bg-[#862903]">
               <div
                 className={`grid ${gridConfig.gridClass} gap-1 w-full p-1 items-center bg-[#4E1C0C]`}
