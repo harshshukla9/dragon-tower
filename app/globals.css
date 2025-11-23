@@ -109,3 +109,11 @@ html, body {
     @apply bg-background text-foreground;
   }
 }
+
+.primary-container {
+  background-image: url('/all%20assets/General-Border.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
