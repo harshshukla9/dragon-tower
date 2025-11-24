@@ -400,8 +400,8 @@ export const GameBoard = () => {
                     const isCurrentRow = rowIdx === targetRow;
                     const isClickable = status === "playing" && isCurrentRow;
 
-                    const getTileBackground = () => {
-                      if (tile === "hidden") {
+                     const getTileBackground = () => {
+                       if (tile === "hidden") {
                         const gridType = isClickable
                           ? "Active%20play%20grid"
                           : "general%20grid";
@@ -412,9 +412,9 @@ export const GameBoard = () => {
                         } else {
                           return `url('/all%20assets/${gridType}%20Hard%20mode.png')`;
                         }
-                      }
-                      return "";
-                    };
+                       }
+                       return "";
+                     };
 
                      const getTileContent = () => {
                        if (tile === "hidden") {
@@ -440,26 +440,30 @@ export const GameBoard = () => {
                              animate={{ scale: 1, rotate: 0, opacity: 1 }}
                              transition={{ duration: 0.4 }}
                            >
-                             💀
+                             <Image width={35} height={35} src="/all%20assets/LostSkull.png" alt="trap" className="w-full h-full object-contain" />
                            </motion.span>
                          );
                        }
                        return null;
                      };
 
-                    const getTileBackgroundColor = () => {
-                      if (isClickable) {
-                        if (mode === "easy") {
-                          return "#D4A05A";
-                        } else if (mode === "medium") {
-                          return "#8B4513";
-                        } else {
-                          return "#8B4513";
-                        }
-                      } else {
-                        return "#773016";
-                      }
-                    };
+                     const getTileBackgroundColor = () => {
+                       if (tile === "trap") {
+                         return "#C02B19";
+                       }
+
+                       if (isClickable) {
+                         if (mode === "easy") {
+                           return "#D4A05A";
+                         } else if (mode === "medium") {
+                           return "#8B4513";
+                         } else {
+                           return "#8B4513";
+                         }
+                       } else {
+                         return "#773016";
+                       }
+                     };
 
                      return (
                       <motion.div
