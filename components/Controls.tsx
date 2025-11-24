@@ -263,7 +263,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
             <motion.button
               onClick={canStart ? handleStartGame : canCashOut ? handleCashOut : handleStartGame}
               disabled={!canStart && !canCashOut && !canReset}
-              className="w-full py-2 text-white rounded-b-lg font-semibold text-lg"
+              className={`w-full py-2 text-white ${canReset || canStart ? `rounded-lg` : `rounded-b-lg`} font-semibold text-lg`}
               style={{
                 backgroundImage: 'url(/all%20assets/bet%20and%20cashout%20main%20button.png)',
                 backgroundSize: 'cover',

@@ -92,9 +92,9 @@ const frame = {
     title: "Template", // Text on the embed button
     action: {
       type: "launch_frame",
-      name: "Monad Farcaster MiniApp Template",
+      name: "Treasure Tower",
       url: appUrl, // URL that is opened when the embed button is tapped or clicked.
-      splashImageUrl: `${appUrl}/images/splash.png`,
+      splashImageUrl: `${appUrl}/images/TreasureTowerLogo.png`,
       splashBackgroundColor: "#f7f7f7",
     },
   },
@@ -128,13 +128,13 @@ const frame = {
   version: "next",
   imageUrl: `${appUrl}/images/feed.png`,
   button: {
-    title: "Launch Template",
+    title: "Treasure Tower",
     action: {
       type: "launch_frame",
-      name: "Monad Farcaster MiniApp Template",
+      name: "Treasure Tower",
       url: appUrl,
-      splashImageUrl: `${appUrl}/images/splash.png`, // App icon in the splash screen (200px * 200px)
-      splashBackgroundColor: "#f7f7f7", // Splash screen background color
+      splashImageUrl: `${appUrl}/images/TreasureTowerLogo.png`, 
+      splashBackgroundColor: "#f7f7f7", 
     },
   },
 };
@@ -267,16 +267,16 @@ const farcasterConfig = {
     },
     frame: {
         version: "1",
-        name: "Monad Farcaster MiniApp Template",
-        iconUrl: `${appUrl}/images/icon.png`, // Icon of the app in the app store
-        homeUrl: `${appUrl}`, // Default launch URL
-        imageUrl: `${appUrl}/images/feed.png`, // Default image to show if shared in a feed.
-        screenshotUrls: [], // Visual previews of the app
-        tags: ["monad", "farcaster", "miniapp", "template"], // Descriptive tags for search
+        name: "Treasure Tower",
+        iconUrl: `${appUrl}/images/icon.png`, 
+        homeUrl: `${appUrl}`, 
+        imageUrl: `${appUrl}/images/feed.png`,
+        screenshotUrls: [], 
+        tags: ["monad", "farcaster", "miniapp", "template"], 
         primaryCategory: "developer-tools",
-        buttonTitle: "Launch Template",
-        splashImageUrl: `${appUrl}/images/splash.png`, // URL of image to show on loading screen.	
-        splashBackgroundColor: "#ffffff", // Hex color code to use on loading screen.
+        buttonTitle: "Treasure Tower",
+        splashImageUrl: `${appUrl}/images/TreasureTowerLogo.png`,
+        splashBackgroundColor: "#ffffff", 
     }
 };
 
