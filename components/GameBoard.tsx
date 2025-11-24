@@ -519,21 +519,21 @@ export const GameBoard = () => {
                 backgroundSize: "contain",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                width: "300px",
-                height: "300px",
+                width: "250px",
+                height: "250px",
               }}
             >
               <motion.div
-                className="absolute top-[62%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+                className="absolute left-[49%] whitespace-nowrap top-[62%] -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
               >
-                <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-6 py-3 left-1/2 transform -translate-x-1/2 border-2 border-yellow-400 shadow-xl text-center">
-                  <div className="text-lg font-bold text-yellow-400">
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-4 py-2 left-1/2 transform -translate-x-1/2 border-2 border-yellow-400 shadow-xl text-center">
+                  <div className="text-sm font-bold text-yellow-400">
                     {multiplier.toFixed(2)}x
                   </div>
-                  <div className="text-lg font-bold text-white">
+                  <div className="text-sm font-bold text-white">
                     {(betAmount * multiplier).toFixed(2)} MON
                   </div>
                 </div>
@@ -581,21 +581,21 @@ export const GameBoard = () => {
                 backgroundSize: "contain",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                width: "250px",
-                height: "250px",
+                width: "200px",
+                height: "200px",
               }}
             >
               <motion.div
-                className="absolute top-[62%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+                className="absolute left-[54%] top-[68%] -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
               >
-                <div className="bg-gradient-to-r whitespace-nowrap from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-5 py-1 border-2 border-red-400 shadow-xl text-center">
-                  <div className="text-lg font-bold text-yellow-400">
+                <div className="bg-gradient-to-r whitespace-nowrap from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-4 py-2 border-2 border-red-400 shadow-xl text-center">
+                  <div className="text-sm font-bold text-yellow-400">
                     LOST
                   </div>
-                  <div className="text-lg font-bold text-white">
+                  <div className="text-sm font-bold text-white">
                   {betAmount.toFixed(2)} MON
                   </div>
                 </div>
