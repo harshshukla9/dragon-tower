@@ -21,7 +21,8 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   const { address } = useAccount()
   const [userBalance, setUserBalance] = useState<UserBalanceData | null>(null)
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
-  const [betInputValue, setBetInputValue] = useState<number>(0)
+  const [betInputValue, setBetInputValue] = useState<string>('')
+  const numericBetValue = betInputValue === '' ? 0 : parseFloat(betInputValue) || 0;
 
   const {
     mode,
@@ -38,9 +39,9 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   } = useGameStore();
 
   const isPlaying = status === 'playing';
-  const hasInsufficientBalance = userBalance && betInputValue > userBalance.balance;
-  const isBelowMinimum = betInputValue > 0 && betInputValue < 0.01;
-  const canStart = (status === 'idle' || status === 'won' || status === 'lost' || status === 'cashed_out') && betInputValue >= 0.01 && !hasInsufficientBalance;
+  const hasInsufficientBalance = userBalance && numericBetValue > userBalance.balance;
+  const isBelowMinimum = numericBetValue > 0 && numericBetValue < 0.01;
+  const canStart = (status === 'idle' || status === 'won' || status === 'lost' || status === 'cashed_out') && numericBetValue >= 0.01 && !hasInsufficientBalance;
   const canCashOut = isPlaying;
   const canReset = status === 'won' || status === 'lost' || status === 'cashed_out';
 
@@ -75,7 +76,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   useEffect(() => {
     if ((status === 'won' || status === 'lost' || status === 'cashed_out') && betAmount > 0) {
       const rounded = Math.round(betAmount * 100) / 100;
-      setBetInputValue(rounded)
+      setBetInputValue(rounded.toFixed(2))
     }
   }, [status, betAmount])
 
@@ -111,25 +112,19 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
     const inputValue = e.target.value;
 
     if (inputValue === '') {
-      setBetInputValue(0);
+      setBetInputValue('');
       return;
     }
 
-    const decimalIndex = inputValue.indexOf('.');
-    if (decimalIndex !== -1) {
-      const decimalPart = inputValue.substring(decimalIndex + 1);
-      if (decimalPart.length > 2) {
-        const truncated = inputValue.substring(0, decimalIndex + 3);
-        const value = parseFloat(truncated) || 0;
-        const rounded = Math.round(value * 100) / 100;
-        setBetInputValue(rounded);
-        return;
-      }
+    const sanitized = inputValue.replace(/[^0-9.]/g, '');
+    const [intPart, decimalPart = ''] = sanitized.split('.');
+
+    if (decimalPart.length > 2) {
+      setBetInputValue(`${intPart}.${decimalPart.slice(0, 2)}`);
+      return;
     }
 
-    const value = parseFloat(inputValue) || 0;
-    const rounded = Math.round(value * 100) / 100;
-    setBetInputValue(rounded);
+    setBetInputValue(sanitized);
   };
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -137,22 +132,23 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
   };
 
   const handleBetHalf = () => {
-    const newValue = betInputValue / 2;
+    const newValue = numericBetValue / 2;
     const rounded = Math.round(newValue * 100) / 100;
-    setBetInputValue(Math.max(0.01, rounded));
+    setBetInputValue(Math.max(0.01, rounded).toFixed(2));
   };
 
   const handleBetDouble = () => {
-    const newValue = betInputValue * 2;
+    const newValue = numericBetValue * 2;
     const rounded = Math.round(newValue * 100) / 100;
-    setBetInputValue(rounded);
+    setBetInputValue(rounded.toFixed(2));
   };
 
   const handleStartGame = async () => {
     if (canStart) {
       try {
         resetGame();
-        setBetAmount(betInputValue);
+        const wagerAmount = Math.round(numericBetValue * 100) / 100;
+        setBetAmount(wagerAmount);
 
         const response = await fetch('/api/bet', {
           method: 'POST',
@@ -161,7 +157,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
           },
           body: JSON.stringify({
             walletAddress: address,
-            betAmount: betInputValue,
+            betAmount: wagerAmount,
           }),
         });
 
@@ -181,7 +177,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
         }
 
         startGame();
-        setBetInputValue(0);
+        setBetInputValue('');
         if (onBetPlaced) {
           onBetPlaced();
         }
@@ -303,7 +299,7 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
               <div className="text-sm text-red-300">
                 <div className="font-medium">Insufficient Balance</div>
                 <div className="text-xs">
-                  You need {betInputValue.toFixed(2)} MON but only have {userBalance?.balance.toFixed(2)} MON
+                  You need {numericBetValue.toFixed(2)} MON but only have {userBalance?.balance.toFixed(2)} MON
                 </div>
               </div>
             </div>
@@ -325,29 +321,12 @@ export const Controls = ({ onBetPlaced }: ControlsProps) => {
               <Input 
                 placeholder='0.00' 
                 type="number" 
-                value={betInputValue > 0 ? betInputValue.toFixed(2) : ''} 
+                value={betInputValue} 
                 disabled={isPlaying} 
                 onChange={handleBetAmountChange}
-                min="0.01"
                 step="0.01"
                 className='flex-1 rounded-none focus:outline-none border-gray-600 bg-black text-white rounded-l-lg' 
               />
-                {/* <input
-                  type="number"
-                  value={betInputValue > 0 ? betInputValue.toFixed(4) : ''}
-                  onChange={handleBetAmountChange}
-                  placeholder="0.0000"
-                  min="0"
-                  step="0.0001"
-                  className=""
-                  style={{
-                    MozAppearance: 'textfield'
-                  }}
-                  disabled={isPlaying}
-                />
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 text-sm">
-                <img src="monadlogo.png" alt="Monad" width={20} height={20} className="rounded-full" />
-              </span> */}
             <div className="flex">
               <button
                 onClick={handleBetHalf}
