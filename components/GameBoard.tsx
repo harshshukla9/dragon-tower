@@ -448,10 +448,6 @@ export const GameBoard = () => {
                      };
 
                      const getTileBackgroundColor = () => {
-                       if (tile === "trap") {
-                         return "#C02B19";
-                       }
-
                        if (isClickable) {
                          if (mode === "easy") {
                            return "#D4A05A";
