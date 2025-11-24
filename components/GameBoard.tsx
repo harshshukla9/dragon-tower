@@ -524,10 +524,10 @@ export const GameBoard = () => {
               }}
             >
               <motion.div
-                className="absolute top-[62%] left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
+                className="absolute top-[62%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+                initial={{ opacity: 0, y: 60 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
               >
                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-6 py-3 left-1/2 transform -translate-x-1/2 border-2 border-yellow-400 shadow-xl text-center">
                   <div className="text-lg font-bold text-yellow-400">
@@ -556,16 +556,15 @@ export const GameBoard = () => {
           </motion.div>
         </motion.div>
       )}
-
-      {status === "lost" && (
+      {(status === "lost") && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60"
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 "
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="text-center relative"
+            className="text-center relative flex flex-col items-center"
             initial={{ scale: 0.5, y: -100 }}
             animate={{ scale: 1, y: 0 }}
             transition={{
@@ -576,43 +575,40 @@ export const GameBoard = () => {
             }}
           >
             <div
-              className="relative flex flex-col items-center"
+              className="relative flex flex-col items-center justify-center"
               style={{
                 backgroundImage: "url(/all%20assets/Lost%20chest.png)",
                 backgroundSize: "contain",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                width: "200px",
-                height: "200px",
+                width: "250px",
+                height: "250px",
               }}
             >
               <motion.div
-                className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
-                initial={{ opacity: 0, y: -20 }}
+                className="absolute top-[62%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+                initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              ></motion.div>
-              <motion.div
-                className="absolute top-[60%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
+                transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
               >
                 <div className="bg-gradient-to-r whitespace-nowrap from-red-600 to-red-800 rounded-xl ml-[-60px] mt-[-45px] px-5 py-1 border-2 border-red-400 shadow-xl text-center">
-                  <div className="text-base text-red-300 mb-1">Lost</div>
-                  <div className="text-base font-bold text-white">
-                    {betAmount.toFixed(2)} MON
+                  <div className="text-lg font-bold text-yellow-400">
+                    LOST
+                  </div>
+                  <div className="text-lg font-bold text-white">
+                  {betAmount.toFixed(2)} MON
                   </div>
                 </div>
               </motion.div>
             </div>
+
             <motion.button
               onClick={() => {
                 const { resetGame } = useGameStore.getState();
                 resetGame();
                 window.dispatchEvent(new CustomEvent("balanceUpdated"));
               }}
-              className="mt-4 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white px-8 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg"
+              className="mt-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white px-8 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
