@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useGameStore, type TileState } from "../store/gameStore";
 import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface TileProps {
   tile: TileState;
@@ -245,6 +246,28 @@ export const GameBoard = () => {
     }
   }, [multiplier]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const assetSources = [
+      "/all%20assets/Active%20play%20grid%20easy%20mode.png",
+      "/all%20assets/general%20grid%20easy%20mode.png",
+      "/all%20assets/Active%20play%20grid%20medium%20mode.png",
+      "/all%20assets/general%20grid%20medium%20mode.png",
+      "/all%20assets/Active%20play%20grid%20Hard%20mode.png",
+      "/all%20assets/general%20grid%20Hard%20mode.png",
+    ];
+    const images = assetSources.map((src) => {
+      const img = new window.Image();
+      img.src = src;
+      return img;
+    });
+    return () => {
+      images.forEach((img) => {
+        img.src = "";
+      });
+    };
+  }, []);
+
   if (!grid.length) {
     return (
       <div className="relative h-full w-full flex items-center justify-center">
@@ -358,19 +381,21 @@ export const GameBoard = () => {
         )}
 
         <div className="flex flex-col absolute top-12 h-full w-full px-4">
-          <img
+          <Image
+            width={100}
+            height={100}
             src={getChestDisplay().image}
             alt={getChestDisplay().alt}
-            className="w-18 h-20 absolute -top-12 left-[35%] z-20 -translate-x-[-17px] object-contain"
+            className="w-18 h-20 absolute -top-12 left-[32%] z-20 -translate-x-[-17px] object-contain"
           />
           <div className="overflow-hidden relative w-full h-[60vh] flex flex-col items-center">
-            <img src="./all%20assets/Top-Border.png" alt="top-border" />
+            <Image width={400} quality={100} height={100} className="w-full" src="/all%20assets/Top-Border.png" alt="top-border" />
             <div className="w-full h-[58vh] overflow-hidden p-2 bg-[#862903]">
               <div
                 className={`grid ${gridConfig.gridClass} gap-1 w-full p-1 items-center bg-[#4E1C0C]`}
               >
-                {grid.map((row, rowIdx) =>
-                  row.map((tile, colIdx) => {
+                 {grid.map((row, rowIdx) =>
+                   row.map((tile, colIdx) => {
                     const targetRow = config.rows - 1 - currentRow;
                     const isCurrentRow = rowIdx === targetRow;
                     const isClickable = status === "playing" && isCurrentRow;
@@ -391,25 +416,36 @@ export const GameBoard = () => {
                       return "";
                     };
 
-                    const getTileContent = () => {
-                      if (tile === "hidden") {
-                        return "";
-                      } else if (tile === "safe") {
-                        return (
-                          <motion.img
-                            src="/all%20assets/diamond%20reward.png"
-                            alt="Safe"
-                            className="w-full h-full object-contain scale-150"
-                            initial={{ scale: 0, rotate: 180 }}
-                            animate={{ scale: 1.5, rotate: 0 }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        );
-                      } else if (tile === "trap") {
-                        return "💀";
-                      }
-                      return null;
-                    };
+                     const getTileContent = () => {
+                       if (tile === "hidden") {
+                         return "";
+                       } else if (tile === "safe") {
+                         return (
+                           <motion.img
+                             key={`safe-${rowIdx}-${colIdx}`}
+                             src="/all%20assets/diamond%20reward.png"
+                             alt="Safe"
+                             className="w-full h-full object-contain scale-150"
+                             initial={{ scale: 0, rotate: 180, opacity: 0 }}
+                             animate={{ scale: 1.5, rotate: 0, opacity: 1 }}
+                             transition={{ duration: 0.4 }}
+                           />
+                         );
+                       } else if (tile === "trap") {
+                         return (
+                           <motion.span
+                             key={`trap-${rowIdx}-${colIdx}`}
+                             className="text-4xl"
+                             initial={{ scale: 0, rotate: -45, opacity: 0 }}
+                             animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                             transition={{ duration: 0.4 }}
+                           >
+                             💀
+                           </motion.span>
+                         );
+                       }
+                       return null;
+                     };
 
                     const getTileBackgroundColor = () => {
                       if (isClickable) {
@@ -425,7 +461,7 @@ export const GameBoard = () => {
                       }
                     };
 
-                    return (
+                     return (
                       <motion.div
                         key={`${rowIdx}-${colIdx}`}
                         className={`h-[4.9vh] w-full rounded-lg flex items-center justify-center text-white text-2xl font-bold ${
@@ -440,10 +476,10 @@ export const GameBoard = () => {
                           backgroundPosition: "center",
                           backgroundRepeat:"no-repeat"
                         }}
-                        onClick={() => isClickable && clickTile(rowIdx, colIdx)}
+                         onClick={() => isClickable && clickTile(rowIdx, colIdx)}
                         whileTap={isClickable ? { scale: 0.95 } : {}}
                       >
-                        {getTileContent()}
+                         {getTileContent()}
                       </motion.div>
                     );
                   })
@@ -451,7 +487,7 @@ export const GameBoard = () => {
               </div>
             </div>
             <div className="w-full h-[2.3vh] overflow-hidden rounded-b-lg">
-              <img src="./all%20assets/bottom-border.png" alt="bottom-border" className="w-full h-full object-cover" />
+              <Image width={400} height={100} src="/all%20assets/bottom-border.png" alt="bottom-border" className="w-full h-full object-cover" />
             </div>
           </div>
           {/* </div> */}
