@@ -381,14 +381,14 @@ export const GameBoard = () => {
         )}
 
         <div className="flex flex-col absolute top-12 h-full w-full px-4">
-          <Image
-            width={100}
-            height={100}
-            src={getChestDisplay().image}
-            alt={getChestDisplay().alt}
-            className="w-18 h-20 absolute -top-12 left-[32%] z-20 -translate-x-[-17px] object-contain"
-          />
-          <div className="overflow-hidden relative w-full h-[60vh] flex flex-col items-center">
+          <div className=" relative w-full h-[60vh] flex flex-col items-center">
+            <Image
+              width={120}
+              height={120}
+              src={getChestDisplay().image}
+              alt={getChestDisplay().alt}
+              className="w-20 h-20 absolute -top-[40px] left-1/2 -translate-x-1/2 z-30 object-contain"
+            />
             <Image width={400} quality={100} height={100} className="w-full" src="/all%20assets/Top-Border.png" alt="top-border" />
             <div className="w-full h-[58vh] overflow-hidden p-2 bg-[#862903]">
               <div
