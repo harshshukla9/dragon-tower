@@ -515,16 +515,16 @@ export const GameBoard = () => {
             <div
               className="relative flex flex-col items-center justify-center"
               style={{
-                backgroundImage: "url(/all%20assets/Winning%20Chest.png)",
+                backgroundImage: "url(/all%20assets/Treasure_chest_Glow.png)",
                 backgroundSize: "contain",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                width: "250px",
-                height: "250px",
+                width: "280px",
+                height: "280px",
               }}
             >
               <motion.div
-                className="absolute left-[49%] whitespace-nowrap top-[62%] -translate-x-1/2 -translate-y-1/2"
+                className="absolute left-[50%] whitespace-nowrap top-[62%] -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
