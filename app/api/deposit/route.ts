@@ -3,19 +3,26 @@ import User from "@/lib/user";
 
 export async function POST(req: Request) {
   try {
-    const { fid, username, walletAddress, amount, transactionHash } = await req.json();
+    let { fid, username, walletAddress, amount, transactionHash } = await req.json();
     
     console.log('Received deposit request:', { fid, username, walletAddress, amount, transactionHash });
     
-    if (!fid || !username || !walletAddress || !amount || !transactionHash) {
-      console.log('Missing fields:', { 
-        fid: !!fid, 
-        username: !!username, 
+    // Validate essential fields
+    if (!walletAddress || !amount || !transactionHash) {
+      console.log('Missing essential fields:', { 
         walletAddress: !!walletAddress, 
         amount: !!amount, 
         transactionHash: !!transactionHash 
       });
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
+      return Response.json({ error: 'Missing required fields: walletAddress, amount, or transactionHash' }, { status: 400 });
+    }
+
+    // Handle web app scenario: if fid/username are missing, use wallet address
+    if (!fid || !username) {
+      console.log('🌐 Web app detected - using wallet address as fallback');
+      fid = fid || walletAddress.toLowerCase();
+      username = username || `User-${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+      console.log('Generated fallback:', { fid, username });
     }
 
     // Connect to database
