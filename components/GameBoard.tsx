@@ -288,7 +288,7 @@ export const GameBoard = () => {
   const currentPayout = betAmount * multiplier;
 
   return (
-    <div className="relative h-[70vh] w-full overflow-hidden">
+    <div className="relative h-[70vh] md:h-[80vh] md:rounded-xl md:overflow-hidden md:w-[40vw] w-full overflow-hidden">
       <div
         className="h-full w-full z-10 object-cover"
         style={{
@@ -380,7 +380,7 @@ export const GameBoard = () => {
           </motion.div>
         )}
 
-        <div className="flex flex-col absolute top-12 h-full w-full px-4">
+        <div className="flex flex-col absolute top-12 md:top-20 md:left-1/2 md:transform md:-translate-x-1/2 h-full md:w-[30vw] w-full px-4">
           <div className=" relative w-full h-[60vh] flex flex-col items-center">
             <Image
               width={120}

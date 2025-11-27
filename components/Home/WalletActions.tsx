@@ -74,17 +74,6 @@ export function WalletActions() {
             {shortenAddress(address)}
           </span>
         </p>
-
-        {/* {isLoading ? (
-          <p className="text-sm text-gray-400">Fetching balance...</p>
-        ) : (
-          <p className="text-base font-semibold text-white">
-            MON Balance:{' '}
-            <span className="font-mono text-green-400">
-              {balance ? Number(formatEther(balance.value)).toFixed(4) : '0.0000'} MON
-            </span>
-          </p>
-        )} */}
         
         <button
           type="button"
