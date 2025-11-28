@@ -10,8 +10,15 @@ import { GameLayout } from '../GameLayout'
 
 export function Demo() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center ">
-      <div className="w-full max-w-4xl space-y-6">
+    <div className="flex min-h-screen w-full bg-[#1D1B1E] flex-col items-center justify-center ">
+      <div className="w-full space-y-6 md:space-y-0 md:w-full md:flex md:items-center md:justify-center">
+        <GameLayout />
+      </div>
+    </div>
+  )
+}
+
+
         {/* <User />
         <FarcasterActions />
         <NotificationActions />
@@ -19,8 +26,3 @@ export function Demo() {
         <CustomOGImageAction />
         <Haptics /> */}
         {/* <AssetTest /> */}
-        <GameLayout />
-      </div>
-    </div>
-  )
-}
